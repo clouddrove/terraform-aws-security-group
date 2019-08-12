@@ -1,0 +1,48 @@
+---
+#
+# This is the canonical configuration for the `README.md`
+# Run `make readme` to rebuild the `README.md`
+#
+
+# Name of this project
+name : Terraform AWS Security Group
+
+# License of this project
+license: "MIT"
+
+# Canonical GitHub repo
+github_repo: clouddrove/terraform-aws-security-group
+
+# Badges to display
+badges:
+  - name: "Terraform"
+    image: "https://img.shields.io/badge/Terraform-v0.12-green"
+    url: "https://www.terraform.io"
+  - name: "Licence"
+    image: "https://img.shields.io/badge/License-MIT-blue.svg"
+    url: "LICENSE.md"
+
+#  description of this project
+description: |-
+  This terraform module creates set of Security Group and Security Group Rules resources in various combinations.
+
+# extra content
+include:
+  - "terraform.md"
+
+# How to use this project
+usage : |-
+  ### Simple Example
+  Here is an example of how you can use this module in your inventory structure:
+  ```hcl
+    module "security_group" {
+      source        = "git::https://github.com/clouddrove/terraform-aws-security-group.git"
+      name          = "security-group"
+      application   = "clouddrove"
+      environment   = "test"
+      label_order   = ["environment", "name", "application"]
+      vpc_id        = "vpc-xxxxxxxxx"
+      allowed_ip    = ["172.16.0.0/16", "10.0.0.0/16"]
+      allowed_ports = [22, 27017]
+    }
+  ```

@@ -1,58 +1,69 @@
-variable "create_default_security_group" {
-  description = "Create default Security Group with only Egress traffic allowed"
-  default     = "true"
-}
-
-variable "vpc_id" {
-  description = "The ID of the VPC that the instance security group belongs to"
+#Module      : LABEL
+#Description : Terraform label module variables.
+variable "name" {
+  type        = string
   default     = ""
-}
-
-variable "allowed_ports" {
-  type        = "list"
-  description = "List of allowed ingress ports"
-  default     = []
+  description = "Name  (e.g. `app` or `cluster`)."
 }
 
 variable "application" {
-  type        = "string"
-  description = "application (e.g. `cp` or `clouddrove`)"
+  type        = string
+  default     = ""
+  description = "Application (e.g. `cd` or `clouddrove`)."
 }
 
 variable "environment" {
-  type        = "string"
-  description = "Environment (e.g. `prod`, `dev`, `staging`)"
+  type        = string
+  default     = ""
+  description = "Environment (e.g. `prod`, `dev`, `staging`)."
 }
 
-variable "name" {
-  description = "Name  (e.g. `bastion` or `db`)"
-}
-
-variable "delimiter" {
-  default     = "-"
-  description = "Delimiter to be used between `name`, `namespace`, `stage`, etc."
-}
-
-variable "attributes" {
-  description = "Additional attributes (e.g. `1`)"
-  type        = "list"
+variable "label_order" {
+  type        = list
   default     = []
+  description = "Label order, e.g. `name`,`application`."
 }
 
 variable "tags" {
-  description = "Additional tags"
-  type        = "map"
+  type        = map(string)
   default     = {}
+  description = "Additional tags (e.g. map(`BusinessUnit`,`XYZ`)."
 }
 
-variable "cidr_blocks" {
-  description = "List of CIDR blocks"
-  type        = "list"
+# Module      : SECURITY GROUP
+# Description : Terraform security group module variables.
+variable "enable_security_group" {
+  type        = bool
+  default     = true
+  description = "Enable default Security Group with only Egress traffic allowed."
+}
+
+variable "vpc_id" {
+  type        = string
+  default     = ""
+  description = "The ID of the VPC that the instance security group belongs to."
+}
+
+variable "description" {
+  type        = string
+  default     = "Instance default security group (only egress access is allowed)."
+  description = "The security group description."
+}
+
+variable "allowed_ports" {
+  type        = list
   default     = []
+  description = "List of allowed ingress ports."
+}
+
+variable "allowed_ip" {
+  type        = list
+  default     = []
+  description = "List of allowed ip."
 }
 
 variable "security_groups" {
-  description = "List of Security Group IDs allowed to connect to the instance"
-  type        = "list"
+  type        = list
   default     = []
+  description = "List of Security Group IDs allowed to connect to the instance."
 }
