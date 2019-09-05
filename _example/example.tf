@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 module "vpc" {
-  source = "git::https://github.com/clouddrove/terraform-aws-vpc.git"
+  source = "git::https://github.com/clouddrove/terraform-aws-vpc.git?ref=tags/0.12.1"
 
   name        = "vpc"
   application = "clouddrove"
@@ -14,7 +14,7 @@ module "vpc" {
 }
 
 module "security_group" {
-  source = "git::https://github.com/clouddrove/terraform-aws-security-group.git"
+  source = "git::https://github.com/clouddrove/terraform-aws-security-group.git?ref=tags/0.12.1"
 
   name        = "security-group"
   application = "clouddrove"

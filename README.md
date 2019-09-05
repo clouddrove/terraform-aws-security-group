@@ -57,7 +57,7 @@ This module has a few dependencies:
 Here is an example of how you can use this module in your inventory structure:
 ```hcl
   module "security_group" {
-    source        = "git::https://github.com/clouddrove/terraform-aws-security-group.git"
+    source        = "git::https://github.com/clouddrove/terraform-aws-security-group.git?ref=tags/0.12.1"
     name          = "security-group"
     application   = "clouddrove"
     environment   = "test"
