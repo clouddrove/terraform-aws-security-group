@@ -67,3 +67,9 @@ variable "security_groups" {
   default     = []
   description = "List of Security Group IDs allowed to connect to the instance."
 }
+
+variable "protocol" {
+  type        = string
+  default     = "tcp"
+  description = "The protocol. If not icmp, tcp, udp, or all use the."
+}

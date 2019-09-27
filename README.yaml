@@ -40,6 +40,7 @@ usage : |-
       name          = "security-group"
       application   = "clouddrove"
       environment   = "test"
+      protocol      = "tcp"
       label_order   = ["environment", "name", "application"]
       vpc_id        = "vpc-xxxxxxxxx"
       allowed_ip    = ["172.16.0.0/16", "10.0.0.0/16"]

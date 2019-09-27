@@ -57,7 +57,7 @@ resource "aws_security_group_rule" "ingress" {
   type              = "ingress"
   from_port         = element(var.allowed_ports, count.index)
   to_port           = element(var.allowed_ports, count.index)
-  protocol          = "tcp"
+  protocol          = var.protocol
   cidr_blocks       = var.allowed_ip
   security_group_id = aws_security_group.default[0].id
 }

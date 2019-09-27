@@ -1,5 +1,6 @@
 provider "aws" {
   region = "eu-west-1"
+  profile = "cd"
 }
 
 module "vpc" {
@@ -14,7 +15,7 @@ module "vpc" {
 }
 
 module "security_group" {
-  source = "git::https://github.com/clouddrove/terraform-aws-security-group.git?ref=tags/0.12.1"
+  source = "git::https://github.com/clouddrove/terraform-aws-security-group.git?ref=tags/0.12.2"
 
   name        = "security-group"
   application = "clouddrove"
@@ -22,6 +23,7 @@ module "security_group" {
   label_order = ["environment", "name", "application"]
 
   vpc_id        = module.vpc.vpc_id
+  protocol      = "tcp"
   description   = "Instance default security group (only egress access is allowed)."
   allowed_ip    = ["172.16.0.0/16", "10.0.0.0/16"]
   allowed_ports = [22, 27017]
