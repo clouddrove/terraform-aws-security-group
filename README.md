@@ -77,7 +77,7 @@ Here is an example of how you can use this module in your inventory structure:
     application   = "clouddrove"
     environment   = "test"
     protocol      = "tcp"
-    label_order   = ["environment", "name", "application"]
+    label_order   = ["environment", "application", "name"]
     vpc_id        = "vpc-xxxxxxxxx"
     allowed_ip    = ["172.16.0.0/16", "10.0.0.0/16"]
     allowed_ports = [22, 27017]
