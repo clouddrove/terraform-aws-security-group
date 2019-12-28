@@ -8,7 +8,7 @@ module "vpc" {
   name        = "vpc"
   application = "clouddrove"
   environment = "test"
-  label_order = ["environment", "name", "application"]
+  label_order = ["environment", "application", "name"]
 
   cidr_block = "10.0.0.0/16"
 }
@@ -19,7 +19,7 @@ module "security_group" {
   name        = "security-group"
   application = "clouddrove"
   environment = "test"
-  label_order = ["environment", "name", "application"]
+  label_order = ["environment", "application", "name"]
 
   vpc_id        = module.vpc.vpc_id
   protocol      = "tcp"
