@@ -38,7 +38,7 @@
 <hr>
 
 
-We eat, drink, sleep and most importantly love **DevOps**. We are working towards stratergies for standardizing architecture while ensuring security for the infrastructure. We are strong believer of the philosophy <b>Bigger problems are always solved by breaking them into smaller manageable problems</b>. Resonating with microservices architecture, it is considered best-practice to run database, cluster, storage in smaller <b>connected yet manageable pieces</b> within the infrastructure.
+We eat, drink, sleep and most importantly love **DevOps**. We are working towards strategies for standardizing architecture while ensuring security for the infrastructure. We are strong believer of the philosophy <b>Bigger problems are always solved by breaking them into smaller manageable problems</b>. Resonating with microservices architecture, it is considered best-practice to run database, cluster, storage in smaller <b>connected yet manageable pieces</b> within the infrastructure.
 
 This module is basically combination of [Terraform open source](https://www.terraform.io/) and includes automatation tests and examples. It also helps to create and improve your infrastructure with minimalistic code instead of maintaining the whole infrastructure code yourself.
 
@@ -72,7 +72,7 @@ This module has a few dependencies:
 Here is an example of how you can use this module in your inventory structure:
 ```hcl
   module "security_group" {
-    source        = "git::https://github.com/clouddrove/terraform-aws-security-group.git?ref=tags/0.12.3"
+    source        = "git::https://github.com/clouddrove/terraform-aws-security-group.git?ref=tags/0.12.4"
     name          = "security-group"
     application   = "clouddrove"
     environment   = "test"
@@ -93,24 +93,25 @@ Here is an example of how you can use this module in your inventory structure:
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
-| allowed_ip | List of allowed ip. | list | `<list>` | no |
-| allowed_ports | List of allowed ingress ports. | list | `<list>` | no |
-| application | Application (e.g. `cd` or `clouddrove`). | string | `` | no |
-| description | The security group description. | string | `Instance default security group (only egress access is allowed).` | no |
-| enable_security_group | Enable default Security Group with only Egress traffic allowed. | bool | `true` | no |
-| environment | Environment (e.g. `prod`, `dev`, `staging`). | string | `` | no |
-| label_order | Label order, e.g. `name`,`application`. | list | `<list>` | no |
-| name | Name  (e.g. `app` or `cluster`). | string | `` | no |
-| protocol | The protocol. If not icmp, tcp, udp, or all use the. | string | `tcp` | no |
-| security_groups | List of Security Group IDs allowed to connect to the instance. | list | `<list>` | no |
-| tags | Additional tags (e.g. map(`BusinessUnit`,`XYZ`). | map(string) | `<map>` | no |
-| vpc_id | The ID of the VPC that the instance security group belongs to. | string | `` | no |
+| allowed\_ip | List of allowed ip. | list | `<list>` | no |
+| allowed\_ports | List of allowed ingress ports. | list | `<list>` | no |
+| application | Application \(e.g. `cd` or `clouddrove`\). | string | `""` | no |
+| description | The security group description. | string | `"Instance default security group (only egress access is allowed)."` | no |
+| enable\_security\_group | Enable default Security Group with only Egress traffic allowed. | bool | `"true"` | no |
+| environment | Environment \(e.g. `prod`, `dev`, `staging`\). | string | `""` | no |
+| label\_order | Label order, e.g. `name`,`application`. | list | `<list>` | no |
+| managedby | ManagedBy, eg 'CloudDrove' or 'AnmolNagpal'. | string | `"anmol@clouddrove.com"` | no |
+| name | Name  \(e.g. `app` or `cluster`\). | string | `""` | no |
+| protocol | The protocol. If not icmp, tcp, udp, or all use the. | string | `"tcp"` | no |
+| security\_groups | List of Security Group IDs allowed to connect to the instance. | list | `<list>` | no |
+| tags | Additional tags \(e.g. map\(`BusinessUnit`,`XYZ`\). | map(string) | `<map>` | no |
+| vpc\_id | The ID of the VPC that the instance security group belongs to. | string | `""` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| security_group_ids | IDs on the AWS Security Groups associated with the instance. |
+| security\_group\_ids | IDs on the AWS Security Groups associated with the instance. |
 | tags | A mapping of public tags to assign to the resource. |
 
 
