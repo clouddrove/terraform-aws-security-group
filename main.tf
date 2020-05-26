@@ -16,8 +16,12 @@ module "labels" {
   managedby   = var.managedby
   label_order = var.label_order
 }
+
 locals {
-  security_group_count = var.enable_security_group == true ? 1 : 0
+  security_group_count           = var.enable_security_group == true ? 1 : 0
+  enable_cidr_rules              = var.enable_security_group && (length(var.allowed_ip) > 0)
+  enable_source_sec_group_rules  = var.enable_security_group && (length(var.security_groups) > 0)
+  ports_source_sec_group_product = setproduct(compact(var.allowed_ports), compact(var.security_groups))
 }
 
 #Module      : SECURITY GROUP
@@ -53,7 +57,7 @@ resource "aws_security_group_rule" "egress" {
 #Description : Provides a security group rule resource. Represents a single ingress
 #              group rule, which can be added to external Security Groups.
 resource "aws_security_group_rule" "ingress" {
-  count = var.enable_security_group == true ? length(compact(var.allowed_ports)) : 0
+  count = local.enable_cidr_rules == true ? length(compact(var.allowed_ports)) : 0
 
   type              = "ingress"
   from_port         = element(var.allowed_ports, count.index)
@@ -61,4 +65,15 @@ resource "aws_security_group_rule" "ingress" {
   protocol          = var.protocol
   cidr_blocks       = var.allowed_ip
   security_group_id = aws_security_group.default[0].id
+}
+
+resource "aws_security_group_rule" "ingress_sg" {
+  count = local.enable_source_sec_group_rules == true ? length(local.ports_source_sec_group_product) : 0
+
+  type                     = "ingress"
+  from_port                = element(element(local.ports_source_sec_group_product, count.index), 0)
+  to_port                  = element(element(local.ports_source_sec_group_product, count.index), 0)
+  protocol                 = var.protocol
+  source_security_group_id = element(element(local.ports_source_sec_group_product, count.index), 1)
+  security_group_id        = aws_security_group.default[0].id
 }
