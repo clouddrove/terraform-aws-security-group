@@ -72,7 +72,7 @@ This module has a few dependencies:
 Here is an example of how you can use this module in your inventory structure:
 ```hcl
   module "security_group" {
-    source        = "git::https://github.com/clouddrove/terraform-aws-security-group.git?ref=tags/0.12.4"
+    source        = "git::https://github.com/clouddrove/terraform-aws-security-group.git?ref=tags/0.12.5"
     name          = "security-group"
     application   = "clouddrove"
     environment   = "test"
@@ -93,25 +93,25 @@ Here is an example of how you can use this module in your inventory structure:
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
-| allowed\_ip | List of allowed ip. | list | `<list>` | no |
-| allowed\_ports | List of allowed ingress ports. | list | `<list>` | no |
-| application | Application \(e.g. `cd` or `clouddrove`\). | string | `""` | no |
-| description | The security group description. | string | `"Instance default security group (only egress access is allowed)."` | no |
-| enable\_security\_group | Enable default Security Group with only Egress traffic allowed. | bool | `"true"` | no |
-| environment | Environment \(e.g. `prod`, `dev`, `staging`\). | string | `""` | no |
-| label\_order | Label order, e.g. `name`,`application`. | list | `<list>` | no |
-| managedby | ManagedBy, eg 'CloudDrove' or 'AnmolNagpal'. | string | `"anmol@clouddrove.com"` | no |
-| name | Name  \(e.g. `app` or `cluster`\). | string | `""` | no |
-| protocol | The protocol. If not icmp, tcp, udp, or all use the. | string | `"tcp"` | no |
-| security\_groups | List of Security Group IDs allowed to connect to the instance. | list | `<list>` | no |
-| tags | Additional tags \(e.g. map\(`BusinessUnit`,`XYZ`\). | map(string) | `<map>` | no |
-| vpc\_id | The ID of the VPC that the instance security group belongs to. | string | `""` | no |
+| allowed_ip | List of allowed ip. | list | `<list>` | no |
+| allowed_ports | List of allowed ingress ports. | list | `<list>` | no |
+| application | Application (e.g. `cd` or `clouddrove`). | string | `` | no |
+| description | The security group description. | string | `Instance default security group (only egress access is allowed).` | no |
+| enable_security_group | Enable default Security Group with only Egress traffic allowed. | bool | `true` | no |
+| environment | Environment (e.g. `prod`, `dev`, `staging`). | string | `` | no |
+| label_order | Label order, e.g. `name`,`application`. | list | `<list>` | no |
+| managedby | ManagedBy, eg 'CloudDrove' or 'AnmolNagpal'. | string | `anmol@clouddrove.com` | no |
+| name | Name  (e.g. `app` or `cluster`). | string | `` | no |
+| protocol | The protocol. If not icmp, tcp, udp, or all use the. | string | `tcp` | no |
+| security_groups | List of Security Group IDs allowed to connect to the instance. | list(string) | `<list>` | no |
+| tags | Additional tags (e.g. map(`BusinessUnit`,`XYZ`). | map(string) | `<map>` | no |
+| vpc_id | The ID of the VPC that the instance security group belongs to. | string | `` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| security\_group\_ids | IDs on the AWS Security Groups associated with the instance. |
+| security_group_ids | IDs on the AWS Security Groups associated with the instance. |
 | tags | A mapping of public tags to assign to the resource. |
 
 

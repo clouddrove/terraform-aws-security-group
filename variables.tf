@@ -69,7 +69,7 @@ variable "allowed_ip" {
 }
 
 variable "security_groups" {
-  type        = list
+  type        = list(string)
   default     = []
   description = "List of Security Group IDs allowed to connect to the instance."
 }
