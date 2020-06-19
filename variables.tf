@@ -68,6 +68,12 @@ variable "allowed_ip" {
   description = "List of allowed ip."
 }
 
+variable "allowed_ipv6" {
+  type        = list
+  default     = []
+  description = "List of allowed ipv6."
+}
+
 variable "security_groups" {
   type        = list(string)
   default     = []
