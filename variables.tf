@@ -79,3 +79,13 @@ variable "protocol" {
   default     = "tcp"
   description = "The protocol. If not icmp, tcp, udp, or all use the."
 }
+variable "choose_cidr_type" {
+  type        = string
+  default     = "ipv6"
+  description = "Choose cidr block ipv4 vs ipv6(eg: 2001:db8:1234:1a00::/64) cidr block"
+}
+variable "prefix_list" {
+  type        = list
+  default     = []
+  description = "List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress"
+}

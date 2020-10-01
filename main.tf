@@ -8,7 +8,7 @@
 #              convention.
 
 module "labels" {
-  source = "git::https://github.com/clouddrove/terraform-labels.git?ref=tags/0.12.0"
+  source = "git::https://github.com/clouddrove/terraform-labels.git?ref=tags/0.13.0"
 
   name        = var.name
   application = var.application
@@ -49,8 +49,10 @@ resource "aws_security_group_rule" "egress" {
   from_port         = 0
   to_port           = 65535
   protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = var.choose_cidr_type == "ipv4" ? ["0.0.0.0/0"] : []
+  ipv6_cidr_blocks  = var.choose_cidr_type == "ipv6" ? ["2001:db8:1234:1a00::/64"] : []
   security_group_id = join("", aws_security_group.default.*.id)
+  prefix_list_ids   = var.prefix_list
 }
 
 #Module      : SECURITY GROUP RULE FOR INGRESS
@@ -63,7 +65,8 @@ resource "aws_security_group_rule" "ingress" {
   from_port         = element(var.allowed_ports, count.index)
   to_port           = element(var.allowed_ports, count.index)
   protocol          = var.protocol
-  cidr_blocks       = var.allowed_ip
+  cidr_blocks       = var.choose_cidr_type == "ipv4" ? var.allowed_ip : []
+  ipv6_cidr_blocks  = var.choose_cidr_type == "ipv6" ? var.allowed_ip : []
   security_group_id = join("", aws_security_group.default.*.id)
 }
 
