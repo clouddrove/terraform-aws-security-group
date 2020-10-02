@@ -70,7 +70,7 @@ resource "aws_security_group_rule" "egress_ipv6" {
 #Description : Provides a security group rule resource. Represents a single ingress
 #              group rule, which can be added to external Security Groups.
 resource "aws_security_group_rule" "ingress" {
-  count = local.enable_cidr_rules == true ? length(compact(var.allowed_ports)) : 0
+  count = var.enable_security_group == true && local.enable_cidr_rules == true ? length(compact(var.allowed_ports)) : 0
 
   type              = "ingress"
   from_port         = element(var.allowed_ports, count.index)
@@ -80,7 +80,7 @@ resource "aws_security_group_rule" "ingress" {
   security_group_id = join("", aws_security_group.default.*.id)
 }
 resource "aws_security_group_rule" "ingress_ipv6" {
-  count = local.enable_cidr_rules == true ? length(compact(var.allowed_ports)) : 0
+  count = var.enable_security_group == true && local.enable_cidr_rules == true ? length(compact(var.allowed_ports)) : 0
 
   type              = "ingress"
   from_port         = element(var.allowed_ports, count.index)
@@ -91,7 +91,7 @@ resource "aws_security_group_rule" "ingress_ipv6" {
 }
 
 resource "aws_security_group_rule" "ingress_sg" {
-  count = local.enable_source_sec_group_rules == true ? length(local.ports_source_sec_group_product) : 0
+  count = var.enable_security_group == true && local.enable_source_sec_group_rules == true ? length(local.ports_source_sec_group_product) : 0
 
   type                     = "ingress"
   from_port                = element(element(local.ports_source_sec_group_product, count.index), 0)
