@@ -16,7 +16,7 @@ github_repo: clouddrove/terraform-aws-security-group
 # Badges to display
 badges:
   - name: "Terraform"
-    image: "https://img.shields.io/badge/Terraform-v0.12-green"
+    image: "https://img.shields.io/badge/terraform-v0.13-green"
     url: "https://www.terraform.io"
   - name: "Licence"
     image: "https://img.shields.io/badge/License-MIT-blue.svg"
@@ -44,6 +44,7 @@ usage : |-
       label_order   = ["environment", "application", "name"]
       vpc_id        = "vpc-xxxxxxxxx"
       allowed_ip    = ["172.16.0.0/16", "10.0.0.0/16"]
+      allowed_ipv6  = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
       allowed_ports = [22, 27017]
     }
   ```
