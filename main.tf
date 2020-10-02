@@ -15,6 +15,7 @@ module "labels" {
   environment = var.environment
   managedby   = var.managedby
   label_order = var.label_order
+  enabled     = var.enable_security_group
 }
 
 locals {
@@ -49,8 +50,18 @@ resource "aws_security_group_rule" "egress" {
   from_port         = 0
   to_port           = 65535
   protocol          = "-1"
-  cidr_blocks       = var.choose_cidr_type == "ipv4" ? ["0.0.0.0/0"] : []
-  ipv6_cidr_blocks  = var.choose_cidr_type == "ipv6" ? ["2001:db8:1234:1a00::/64"] : []
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = join("", aws_security_group.default.*.id)
+  prefix_list_ids   = var.prefix_list
+}
+resource "aws_security_group_rule" "egress_ipv6" {
+  count = var.enable_security_group == true ? 1 : 0
+
+  type              = "egress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "-1"
+  ipv6_cidr_blocks  = ["::/0"]
   security_group_id = join("", aws_security_group.default.*.id)
   prefix_list_ids   = var.prefix_list
 }
@@ -65,8 +76,17 @@ resource "aws_security_group_rule" "ingress" {
   from_port         = element(var.allowed_ports, count.index)
   to_port           = element(var.allowed_ports, count.index)
   protocol          = var.protocol
-  cidr_blocks       = var.choose_cidr_type == "ipv4" ? var.allowed_ip : []
-  ipv6_cidr_blocks  = var.choose_cidr_type == "ipv6" ? var.allowed_ip : []
+  cidr_blocks       = var.allowed_ip
+  security_group_id = join("", aws_security_group.default.*.id)
+}
+resource "aws_security_group_rule" "ingress_ipv6" {
+  count = local.enable_cidr_rules == true ? length(compact(var.allowed_ports)) : 0
+
+  type              = "ingress"
+  from_port         = element(var.allowed_ports, count.index)
+  to_port           = element(var.allowed_ports, count.index)
+  protocol          = var.protocol
+  ipv6_cidr_blocks  = var.allowed_ipv6
   security_group_id = join("", aws_security_group.default.*.id)
 }
 

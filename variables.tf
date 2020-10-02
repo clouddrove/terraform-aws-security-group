@@ -67,7 +67,11 @@ variable "allowed_ip" {
   default     = []
   description = "List of allowed ip."
 }
-
+variable "allowed_ipv6" {
+  type        = list
+  default     = []
+  description = "List of allowed ipv6."
+}
 variable "security_groups" {
   type        = list(string)
   default     = []
@@ -78,11 +82,6 @@ variable "protocol" {
   type        = string
   default     = "tcp"
   description = "The protocol. If not icmp, tcp, udp, or all use the."
-}
-variable "choose_cidr_type" {
-  type        = string
-  default     = "ipv6"
-  description = "Choose cidr block ipv4 vs ipv6(eg: 2001:db8:1234:1a00::/64) cidr block"
 }
 variable "prefix_list" {
   type        = list
