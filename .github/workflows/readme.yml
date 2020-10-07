@@ -28,7 +28,7 @@ jobs:
           export GITHUB_ACCESS_TOKEN=${{ secrets.GITHUB }}
           cd .. && cd .. && cd ..
           git clone https://${{ secrets.GITHUB }}@github.com/clouddrove/genie.git
-          cd /home/runner/work/ajay-testing/ajay-testing
+          cd /home/runner/work/terraform-aws-security-group/terraform-aws-security-group
           make packages/install/gomplate
           make readme
       - name: Run pre-commit
