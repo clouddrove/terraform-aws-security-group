@@ -5,7 +5,7 @@
 #
 
 # Name of this project
-name : Terraform AWS Security Group
+name: Terraform AWS Security Group
 
 # License of this project
 license: "MIT"
@@ -24,19 +24,22 @@ badges:
 
 #  description of this project
 description: |-
-  This terraform module creates set of Security Group and Security Group Rules resources in various combinations.
+  This terraform module creates set of Security Group and Security Group
+  Rules resources in various combinations.
 
 # extra content
 include:
   - "terraform.md"
 
 # How to use this project
-usage : |-
+usage: |-
   ### Simple Example
   Here is an example of how you can use this module in your inventory structure:
   ```hcl
+  # use this
     module "security_group" {
-      source        = "git::https://github.com/clouddrove/terraform-aws-security-group.git?ref=tags/0.13.0"
+      source        = "git::https://github.com/clouddrove/
+      terraform-aws-security-group.git?ref=tags/0.13.0"
       name          = "security-group"
       application   = "clouddrove"
       environment   = "test"
