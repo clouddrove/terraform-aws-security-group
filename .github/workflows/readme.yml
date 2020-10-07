@@ -1,6 +1,8 @@
 name: 'Create README.md file'
 on:
-  push
+  push:
+    branches:
+      - master
 
 jobs:
   readme-create:
