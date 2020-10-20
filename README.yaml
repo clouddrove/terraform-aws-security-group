@@ -39,7 +39,8 @@ usage: |-
   ```hcl
   # use this
     module "security_group" {
-      source        = "git::https://github.com/clouddrove/terraform-aws-security-group.git?ref=tags/0.13.0"
+      source        = "clouddrove/security-group/aws"
+      version       = "0.13.0"
       name          = "security-group"
       application   = "clouddrove"
       environment   = "test"

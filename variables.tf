@@ -67,11 +67,7 @@ variable "allowed_ip" {
   default     = []
   description = "List of allowed ip."
 }
-variable "allowed_ipv6" {
-  type        = list
-  default     = []
-  description = "List of allowed ipv6."
-}
+
 variable "security_groups" {
   type        = list(string)
   default     = []
@@ -82,9 +78,4 @@ variable "protocol" {
   type        = string
   default     = "tcp"
   description = "The protocol. If not icmp, tcp, udp, or all use the."
-}
-variable "prefix_list" {
-  type        = list
-  default     = []
-  description = "List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress"
 }

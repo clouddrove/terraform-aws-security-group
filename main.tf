@@ -8,14 +8,13 @@
 #              convention.
 
 module "labels" {
-  source = "git::https://github.com/clouddrove/terraform-labels.git?ref=tags/0.13.0"
+  source = "git::https://github.com/clouddrove/terraform-labels.git?ref=tags/0.12.0"
 
   name        = var.name
   application = var.application
   environment = var.environment
   managedby   = var.managedby
   label_order = var.label_order
-  enabled     = var.enable_security_group
 }
 
 locals {
@@ -23,7 +22,6 @@ locals {
   enable_cidr_rules              = var.enable_security_group && (length(var.allowed_ip) > 0)
   enable_source_sec_group_rules  = var.enable_security_group && (length(var.security_groups) > 0)
   ports_source_sec_group_product = setproduct(compact(var.allowed_ports), compact(var.security_groups))
-  enable_cidr_rules_ipv6         = var.enable_security_group && (length(var.allowed_ipv6) > 0)
 }
 
 #Module      : SECURITY GROUP
@@ -53,25 +51,13 @@ resource "aws_security_group_rule" "egress" {
   protocol          = "-1"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = join("", aws_security_group.default.*.id)
-  prefix_list_ids   = var.prefix_list
-}
-resource "aws_security_group_rule" "egress_ipv6" {
-  count = var.enable_security_group == true && local.enable_cidr_rules_ipv6 == true ? length(compact(var.allowed_ports)) : 0
-
-  type              = "egress"
-  from_port         = 0
-  to_port           = 65535
-  protocol          = "-1"
-  ipv6_cidr_blocks  = ["::/0"]
-  security_group_id = join("", aws_security_group.default.*.id)
-  prefix_list_ids   = var.prefix_list
 }
 
 #Module      : SECURITY GROUP RULE FOR INGRESS
 #Description : Provides a security group rule resource. Represents a single ingress
 #              group rule, which can be added to external Security Groups.
 resource "aws_security_group_rule" "ingress" {
-  count = var.enable_security_group == true && local.enable_cidr_rules == true ? length(compact(var.allowed_ports)) : 0
+  count = local.enable_cidr_rules == true ? length(compact(var.allowed_ports)) : 0
 
   type              = "ingress"
   from_port         = element(var.allowed_ports, count.index)
@@ -80,19 +66,9 @@ resource "aws_security_group_rule" "ingress" {
   cidr_blocks       = var.allowed_ip
   security_group_id = join("", aws_security_group.default.*.id)
 }
-resource "aws_security_group_rule" "ingress_ipv6" {
-  count = var.enable_security_group == true && local.enable_cidr_rules_ipv6 == true ? length(compact(var.allowed_ports)) : 0
-
-  type              = "ingress"
-  from_port         = element(var.allowed_ports, count.index)
-  to_port           = element(var.allowed_ports, count.index)
-  protocol          = var.protocol
-  ipv6_cidr_blocks  = var.allowed_ipv6
-  security_group_id = join("", aws_security_group.default.*.id)
-}
 
 resource "aws_security_group_rule" "ingress_sg" {
-  count = var.enable_security_group == true && local.enable_source_sec_group_rules == true ? length(local.ports_source_sec_group_product) : 0
+  count = local.enable_source_sec_group_rules == true ? length(local.ports_source_sec_group_product) : 0
 
   type                     = "ingress"
   from_port                = element(element(local.ports_source_sec_group_product, count.index), 0)
