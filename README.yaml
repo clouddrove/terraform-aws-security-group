@@ -5,7 +5,7 @@
 #
 
 # Name of this project
-name : Terraform AWS Security Group
+name: Terraform AWS Security Group
 
 # License of this project
 license: "MIT"
@@ -16,13 +16,14 @@ github_repo: clouddrove/terraform-aws-security-group
 # Badges to display
 badges:
   - name: "Terraform"
-    image: "https://img.shields.io/badge/Terraform-v0.12-green"
+    image: "https://img.shields.io/badge/terraform-v0.13-green"
     url: "https://www.terraform.io"
   - name: "Licence"
     image: "https://img.shields.io/badge/License-MIT-blue.svg"
     url: "LICENSE.md"
 
 #  description of this project
+# yamllint disable rule:line-length
 description: |-
   This terraform module creates set of Security Group and Security Group Rules resources in various combinations.
 
@@ -31,12 +32,15 @@ include:
   - "terraform.md"
 
 # How to use this project
-usage : |-
+# yamllint disable rule:line-length
+usage: |-
   ### Simple Example
   Here is an example of how you can use this module in your inventory structure:
   ```hcl
+  # use this
     module "security_group" {
-      source        = "git::https://github.com/clouddrove/terraform-aws-security-group.git?ref=tags/0.12.5"
+      source        = "clouddrove/security-group/aws"
+      version       = "0.13.0"
       name          = "security-group"
       application   = "clouddrove"
       environment   = "test"
@@ -44,6 +48,7 @@ usage : |-
       label_order   = ["environment", "application", "name"]
       vpc_id        = "vpc-xxxxxxxxx"
       allowed_ip    = ["172.16.0.0/16", "10.0.0.0/16"]
+      allowed_ipv6  = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
       allowed_ports = [22, 27017]
     }
   ```
