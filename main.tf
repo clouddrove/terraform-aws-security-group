@@ -54,7 +54,7 @@ resource "aws_security_group_rule" "egress" {
   security_group_id = join("", aws_security_group.default.*.id)
 }
 resource "aws_security_group_rule" "egress_ipv6" {
-  count = var.enable_security_group == true && local.enable_cidr_rules_ipv6 == true ? length(compact(var.allowed_ports)) : 0
+  count = var.enable_security_group == true && local.enable_cidr_rules_ipv6 == true ? 1 : 0
 
   type              = "egress"
   from_port         = 0
