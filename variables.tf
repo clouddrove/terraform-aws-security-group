@@ -79,3 +79,13 @@ variable "protocol" {
   default     = "tcp"
   description = "The protocol. If not icmp, tcp, udp, or all use the."
 }
+variable "allowed_ipv6" {
+  type        = list
+  default     = []
+  description = "List of allowed ipv6."
+}
+variable "prefix_list" {
+  type        = list
+  default     = []
+  description = "List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress"
+}
