@@ -6,10 +6,16 @@ variable "name" {
   description = "Name  (e.g. `app` or `cluster`)."
 }
 
-variable "application" {
+variable "repository" {
   type        = string
   default     = ""
-  description = "Application (e.g. `cd` or `clouddrove`)."
+  description = "Terraform current module repo"
+
+  validation {
+    # regex(...) fails if it cannot find a match
+    condition     = can(regex("^https://", var.repository))
+    error_message = "The module-repo value must be a valid Git repo link."
+  }
 }
 
 variable "environment" {
@@ -20,8 +26,8 @@ variable "environment" {
 
 variable "managedby" {
   type        = string
-  default     = "anmol@clouddrove.com"
-  description = "ManagedBy, eg 'CloudDrove' or 'AnmolNagpal'."
+  default     = "hello@clouddrove.com"
+  description = "ManagedBy, eg 'CloudDrove'."
 }
 
 variable "label_order" {
@@ -48,6 +54,7 @@ variable "vpc_id" {
   type        = string
   default     = ""
   description = "The ID of the VPC that the instance security group belongs to."
+  sensitive   = true
 }
 
 variable "description" {
@@ -60,18 +67,21 @@ variable "allowed_ports" {
   type        = list
   default     = []
   description = "List of allowed ingress ports."
+  sensitive   = true
 }
 
 variable "allowed_ip" {
   type        = list
   default     = []
   description = "List of allowed ip."
+  sensitive   = true
 }
 
 variable "security_groups" {
   type        = list(string)
   default     = []
   description = "List of Security Group IDs allowed to connect to the instance."
+  sensitive   = true
 }
 
 variable "protocol" {
@@ -83,9 +93,12 @@ variable "allowed_ipv6" {
   type        = list
   default     = []
   description = "List of allowed ipv6."
+  sensitive   = true
 }
 variable "prefix_list" {
   type        = list
   default     = []
   description = "List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress"
+  sensitive   = true
+
 }

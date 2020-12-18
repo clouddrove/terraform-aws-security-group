@@ -16,7 +16,7 @@ github_repo: clouddrove/terraform-aws-security-group
 # Badges to display
 badges:
   - name: "Terraform"
-    image: "https://img.shields.io/badge/terraform-v0.13-green"
+    image: "https://img.shields.io/badge/terraform-v0.14-green"
     url: "https://www.terraform.io"
   - name: "Licence"
     image: "https://img.shields.io/badge/License-MIT-blue.svg"
@@ -40,12 +40,12 @@ usage: |-
   # use this
     module "security_group" {
       source        = "clouddrove/security-group/aws"
-      version       = "0.13.0"
+      version       = "0.14.0"
       name          = "security-group"
-      application   = "clouddrove"
+      repository    = "https://registry.terraform.io/modules/clouddrove/security-group/aws/0.14.0"
       environment   = "test"
       protocol      = "tcp"
-      label_order   = ["environment", "application", "name"]
+      label_order   = ["name", "environment"]
       vpc_id        = "vpc-xxxxxxxxx"
       allowed_ip    = ["172.16.0.0/16", "10.0.0.0/16"]
       allowed_ipv6  = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
