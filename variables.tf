@@ -66,22 +66,19 @@ variable "description" {
 variable "allowed_ports" {
   type        = list
   default     = []
-  description = "List of allowed ingress ports."
-  sensitive   = true
+  description = "List of allowed ingress ports"
 }
 
 variable "allowed_ip" {
   type        = list
   default     = []
   description = "List of allowed ip."
-  sensitive   = true
 }
 
 variable "security_groups" {
   type        = list(string)
   default     = []
   description = "List of Security Group IDs allowed to connect to the instance."
-  sensitive   = true
 }
 
 variable "protocol" {
@@ -93,12 +90,10 @@ variable "allowed_ipv6" {
   type        = list
   default     = []
   description = "List of allowed ipv6."
-  sensitive   = true
 }
 variable "prefix_list" {
   type        = list
   default     = []
   description = "List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress"
-  sensitive   = true
 
 }
