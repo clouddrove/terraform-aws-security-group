@@ -18,6 +18,12 @@ variable "environment" {
   description = "Environment (e.g. `prod`, `dev`, `staging`)."
 }
 
+variable "attributes" {
+  type        = list(any)
+  default     = []
+  description = "Additional attributes (e.g. `1`)."
+}
+
 variable "managedby" {
   type        = string
   default     = "hello@clouddrove.com"

@@ -13,6 +13,7 @@ module "labels" {
   name        = var.name
   repository  = var.repository
   environment = var.environment
+  attributes  = var.attributes
   managedby   = var.managedby
   label_order = var.label_order
 }
