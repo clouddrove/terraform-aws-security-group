@@ -42,7 +42,6 @@ usage: |-
       source        = "clouddrove/security-group/aws"
       version       = "0.14.0"
       name          = "security-group"
-      repository    = "https://registry.terraform.io/modules/clouddrove/security-group/aws/0.14.0"
       environment   = "test"
       protocol      = "tcp"
       label_order   = ["name", "environment"]

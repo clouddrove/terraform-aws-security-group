@@ -8,14 +8,8 @@ variable "name" {
 
 variable "repository" {
   type        = string
-  default     = ""
+  default     = "https://registry.terraform.io/modules/clouddrove/security-group/aws/"
   description = "Terraform current module repo"
-
-  validation {
-    # regex(...) fails if it cannot find a match
-    condition     = can(regex("^https://", var.repository))
-    error_message = "The module-repo value must be a valid Git repo link."
-  }
 }
 
 variable "environment" {
@@ -31,7 +25,7 @@ variable "managedby" {
 }
 
 variable "label_order" {
-  type        = list
+  type        = list(any)
   default     = []
   description = "Label order, e.g. `name`,`application`."
 }
@@ -64,13 +58,13 @@ variable "description" {
 }
 
 variable "allowed_ports" {
-  type        = list
+  type        = list(any)
   default     = []
   description = "List of allowed ingress ports"
 }
 
 variable "allowed_ip" {
-  type        = list
+  type        = list(any)
   default     = []
   description = "List of allowed ip."
 }
@@ -86,14 +80,15 @@ variable "protocol" {
   default     = "tcp"
   description = "The protocol. If not icmp, tcp, udp, or all use the."
 }
+
 variable "allowed_ipv6" {
-  type        = list
+  type        = list(any)
   default     = []
   description = "List of allowed ipv6."
 }
+
 variable "prefix_list" {
-  type        = list
+  type        = list(any)
   default     = []
   description = "List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress"
-
 }

@@ -3,9 +3,9 @@ provider "aws" {
 }
 
 module "vpc" {
-  source      = "git::https://github.com/clouddrove/terraform-aws-vpc.git?ref=0.14"
+  source      = "clouddrove/vpc/aws"
+  version     = "0.14.0"
   name        = "vpc"
-  repository  = "https://registry.terraform.io/modules/clouddrove/vpc/aws/0.14.0"
   environment = "test"
   label_order = ["name", "environment"]
   cidr_block  = "10.0.0.0/16"
@@ -15,7 +15,6 @@ module "security_group" {
   source = "./../"
 
   name          = "security-group"
-  repository    = "https://registry.terraform.io/modules/clouddrove/security-group/aws/0.14.0"
   environment   = "test"
   label_order   = ["name", "environment"]
   vpc_id        = module.vpc.vpc_id
