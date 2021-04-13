@@ -14,7 +14,7 @@
 <p align="center">
 
 <a href="https://www.terraform.io">
-  <img src="https://img.shields.io/badge/terraform-v0.13-green" alt="Terraform">
+  <img src="https://img.shields.io/badge/terraform-v0.14-green" alt="Terraform">
 </a>
 <a href="LICENSE.md">
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="Licence">
@@ -74,12 +74,11 @@ Here is an example of how you can use this module in your inventory structure:
 # use this
   module "security_group" {
     source        = "clouddrove/security-group/aws"
-    version       = "0.13.0"
+    version       = "0.14.0"
     name          = "security-group"
-    application   = "clouddrove"
     environment   = "test"
     protocol      = "tcp"
-    label_order   = ["environment", "application", "name"]
+    label_order   = ["name", "environment"]
     vpc_id        = "vpc-xxxxxxxxx"
     allowed_ip    = ["172.16.0.0/16", "10.0.0.0/16"]
     allowed_ipv6  = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
@@ -96,18 +95,19 @@ Here is an example of how you can use this module in your inventory structure:
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| allowed\_ip | List of allowed ip. | `list` | `[]` | no |
-| allowed\_ipv6 | List of allowed ipv6. | `list` | `[]` | no |
-| allowed\_ports | List of allowed ingress ports. | `list` | `[]` | no |
-| application | Application (e.g. `cd` or `clouddrove`). | `string` | `""` | no |
+| allowed\_ip | List of allowed ip. | `list(any)` | `[]` | no |
+| allowed\_ipv6 | List of allowed ipv6. | `list(any)` | `[]` | no |
+| allowed\_ports | List of allowed ingress ports | `list(any)` | `[]` | no |
+| attributes | Additional attributes (e.g. `1`). | `list(any)` | `[]` | no |
 | description | The security group description. | `string` | `"Instance default security group (only egress access is allowed)."` | no |
 | enable\_security\_group | Enable default Security Group with only Egress traffic allowed. | `bool` | `true` | no |
 | environment | Environment (e.g. `prod`, `dev`, `staging`). | `string` | `""` | no |
-| label\_order | Label order, e.g. `name`,`application`. | `list` | `[]` | no |
-| managedby | ManagedBy, eg 'CloudDrove' or 'AnmolNagpal'. | `string` | `"anmol@clouddrove.com"` | no |
+| label\_order | Label order, e.g. `name`,`application`. | `list(any)` | `[]` | no |
+| managedby | ManagedBy, eg 'CloudDrove'. | `string` | `"hello@clouddrove.com"` | no |
 | name | Name  (e.g. `app` or `cluster`). | `string` | `""` | no |
-| prefix\_list | List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress | `list` | `[]` | no |
+| prefix\_list | List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress | `list(any)` | `[]` | no |
 | protocol | The protocol. If not icmp, tcp, udp, or all use the. | `string` | `"tcp"` | no |
+| repository | Terraform current module repo | `string` | `"https://registry.terraform.io/modules/clouddrove/security-group/aws/"` | no |
 | security\_groups | List of Security Group IDs allowed to connect to the instance. | `list(string)` | `[]` | no |
 | tags | Additional tags (e.g. map(`BusinessUnit`,`XYZ`). | `map(string)` | `{}` | no |
 | vpc\_id | The ID of the VPC that the instance security group belongs to. | `string` | `""` | no |
