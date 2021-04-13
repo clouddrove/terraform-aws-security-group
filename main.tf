@@ -1,5 +1,5 @@
 # Managed By : CloudDrove
-# Description : This Script is used to create security group.
+# Description : This Script is used to create Security Group.
 # Copyright @ CloudDrove. All Right Reserved.
 
 #Module      : Label
@@ -8,11 +8,13 @@
 #              convention.
 
 module "labels" {
-  source = "git::https://github.com/clouddrove/terraform-labels.git?ref=tags/0.13.0"
+  source = "git::https://github.com/clouddrove/terraform-labels.git?ref=tags/0.14.0"
 
+  enabled     = var.enable_security_group
   name        = var.name
-  application = var.application
+  repository  = var.repository
   environment = var.environment
+  attributes  = var.attributes
   managedby   = var.managedby
   label_order = var.label_order
 }

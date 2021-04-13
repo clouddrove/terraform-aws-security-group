@@ -6,10 +6,10 @@ variable "name" {
   description = "Name  (e.g. `app` or `cluster`)."
 }
 
-variable "application" {
+variable "repository" {
   type        = string
-  default     = ""
-  description = "Application (e.g. `cd` or `clouddrove`)."
+  default     = "https://registry.terraform.io/modules/clouddrove/security-group/aws/"
+  description = "Terraform current module repo"
 }
 
 variable "environment" {
@@ -18,14 +18,20 @@ variable "environment" {
   description = "Environment (e.g. `prod`, `dev`, `staging`)."
 }
 
+variable "attributes" {
+  type        = list(any)
+  default     = []
+  description = "Additional attributes (e.g. `1`)."
+}
+
 variable "managedby" {
   type        = string
-  default     = "anmol@clouddrove.com"
-  description = "ManagedBy, eg 'CloudDrove' or 'AnmolNagpal'."
+  default     = "hello@clouddrove.com"
+  description = "ManagedBy, eg 'CloudDrove'."
 }
 
 variable "label_order" {
-  type        = list
+  type        = list(any)
   default     = []
   description = "Label order, e.g. `name`,`application`."
 }
@@ -48,6 +54,7 @@ variable "vpc_id" {
   type        = string
   default     = ""
   description = "The ID of the VPC that the instance security group belongs to."
+  sensitive   = true
 }
 
 variable "description" {
@@ -57,13 +64,13 @@ variable "description" {
 }
 
 variable "allowed_ports" {
-  type        = list
+  type        = list(any)
   default     = []
-  description = "List of allowed ingress ports."
+  description = "List of allowed ingress ports"
 }
 
 variable "allowed_ip" {
-  type        = list
+  type        = list(any)
   default     = []
   description = "List of allowed ip."
 }
@@ -79,13 +86,15 @@ variable "protocol" {
   default     = "tcp"
   description = "The protocol. If not icmp, tcp, udp, or all use the."
 }
+
 variable "allowed_ipv6" {
-  type        = list
+  type        = list(any)
   default     = []
   description = "List of allowed ipv6."
 }
+
 variable "prefix_list" {
-  type        = list
+  type        = list(any)
   default     = []
   description = "List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress"
 }
