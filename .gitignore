@@ -4,4 +4,4 @@
 .terraform
 .idea
 *.iml
-go.sum
+*.terraform.lock.hcl
