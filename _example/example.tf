@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 module "vpc" {
-  source      = "git::https://github.com/clouddrove/terraform-aws-vpc.git?ref=0.14"
+  source      = "git::https://github.com/clouddrove/terraform-aws-vpc.git?ref=0.14.0"
   name        = "vpc"
   repository  = "https://registry.terraform.io/modules/clouddrove/vpc/aws/0.14.0"
   environment = "test"
