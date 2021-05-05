@@ -98,3 +98,22 @@ variable "prefix_list" {
   default     = []
   description = "List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress"
 }
+
+variable "is_external" {
+  type        = bool
+  default     = false
+  description = "enable to udated existing security Group"
+}
+
+variable "existing_sg_id" {
+  type        = string
+  default     = null
+  description = "Provide existing security group id for updating existing rule"
+}
+
+variable "prefix_list_ids" {
+  type        = list(string)
+  default     = []
+  description = "Provide allow source Prefix id of resources"
+
+}

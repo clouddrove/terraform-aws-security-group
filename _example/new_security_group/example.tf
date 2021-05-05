@@ -12,7 +12,7 @@ module "vpc" {
 }
 
 module "security_group" {
-  source = "./../"
+  source = "../../"
 
   name        = "security-group"
   environment = "test"
@@ -25,4 +25,7 @@ module "security_group" {
   allowed_ip            = ["172.16.0.0/16", "10.0.0.0/16"]
   allowed_ipv6          = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
   allowed_ports         = [22, 27017]
+  security_groups       = ["sg-069df50598c864f0e"]
+  prefix_list_ids       = ["pl-6da54004"]
 }
+

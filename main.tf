@@ -8,7 +8,7 @@
 #              convention.
 
 module "labels" {
-  source = "git::https://github.com/clouddrove/terraform-labels.git?ref=tags/0.14.0"
+  source = "git::https://github.com/clouddrove/terraform-labels.git?ref=tags/0.15.0"
 
   enabled     = var.enable_security_group
   name        = var.name
@@ -20,11 +20,16 @@ module "labels" {
 }
 
 locals {
+  sg_existing                    = var.is_external == true
+  id                             = local.sg_existing ? join("", data.aws_security_group.existing.*.id) : join("", aws_security_group.default.*.id)
   security_group_count           = var.enable_security_group == true ? 1 : 0
-  enable_cidr_rules              = var.enable_security_group && (length(var.allowed_ip) > 0)
-  enable_source_sec_group_rules  = var.enable_security_group && (length(var.security_groups) > 0)
-  ports_source_sec_group_product = setproduct(compact(var.allowed_ports), compact(var.security_groups))
-  enable_cidr_rules_ipv6         = var.enable_security_group && (length(var.allowed_ipv6) > 0)
+  enable_cidr_rules              = length(var.allowed_ip) > 0
+  enable_cidr_rules_ipv6         = length(var.allowed_ipv6) > 0
+  enable_source_sec_group_rules  = length(var.security_groups) == 0 ? false : true
+  enable_source_prefix_list_ids  = length(var.prefix_list_ids) == 0 ? false : true
+  ports_source_sec_group_product = setproduct(compact(var.allowed_ports), length(var.security_groups) > 0 ? var.security_groups : [""])
+  ports_source_prefix_product    = setproduct(compact(var.allowed_ports), length(var.prefix_list_ids) > 0 ? var.prefix_list_ids : [""])
+  prefix_list                    = var.prefix_list_ids
 }
 
 #Module      : SECURITY GROUP
@@ -42,28 +47,34 @@ resource "aws_security_group" "default" {
   }
 }
 
+data "aws_security_group" "existing" {
+  count  = local.sg_existing ? 1 : 0
+  id     = var.existing_sg_id
+  vpc_id = var.vpc_id
+}
+
 #Module      : SECURITY GROUP RULE FOR EGRESS
 #Description : Provides a security group rule resource. Represents a single egress
 #              group rule, which can be added to external Security Groups.
 resource "aws_security_group_rule" "egress" {
-  count = var.enable_security_group == true ? 1 : 0
+  count = (var.enable_security_group == true && local.sg_existing == false) ? 1 : 0
 
   type              = "egress"
   from_port         = 0
   to_port           = 65535
   protocol          = "-1"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = join("", aws_security_group.default.*.id)
+  security_group_id = local.id
 }
 resource "aws_security_group_rule" "egress_ipv6" {
-  count = var.enable_security_group == true && local.enable_cidr_rules_ipv6 == true ? 1 : 0
+  count = (var.enable_security_group == true && local.sg_existing == false) && local.enable_cidr_rules_ipv6 == true ? 1 : 0
 
   type              = "egress"
   from_port         = 0
   to_port           = 65535
   protocol          = "-1"
   ipv6_cidr_blocks  = ["::/0"]
-  security_group_id = join("", aws_security_group.default.*.id)
+  security_group_id = local.id
   prefix_list_ids   = var.prefix_list
 }
 #Module      : SECURITY GROUP RULE FOR INGRESS
@@ -77,17 +88,17 @@ resource "aws_security_group_rule" "ingress" {
   to_port           = element(var.allowed_ports, count.index)
   protocol          = var.protocol
   cidr_blocks       = var.allowed_ip
-  security_group_id = join("", aws_security_group.default.*.id)
+  security_group_id = local.id
 }
 resource "aws_security_group_rule" "ingress_ipv6" {
-  count = var.enable_security_group == true && local.enable_cidr_rules_ipv6 == true ? length(compact(var.allowed_ports)) : 0
+  count = local.enable_cidr_rules_ipv6 == true ? length(compact(var.allowed_ports)) : 0
 
   type              = "ingress"
   from_port         = element(var.allowed_ports, count.index)
   to_port           = element(var.allowed_ports, count.index)
   protocol          = var.protocol
   ipv6_cidr_blocks  = var.allowed_ipv6
-  security_group_id = join("", aws_security_group.default.*.id)
+  security_group_id = local.id
 }
 
 resource "aws_security_group_rule" "ingress_sg" {
@@ -97,6 +108,17 @@ resource "aws_security_group_rule" "ingress_sg" {
   from_port                = element(element(local.ports_source_sec_group_product, count.index), 0)
   to_port                  = element(element(local.ports_source_sec_group_product, count.index), 0)
   protocol                 = var.protocol
-  source_security_group_id = element(element(local.ports_source_sec_group_product, count.index), 1)
-  security_group_id        = join("", aws_security_group.default.*.id)
+  source_security_group_id = local.enable_source_sec_group_rules == true ? element(element(local.ports_source_sec_group_product, count.index), 1) : 0
+  security_group_id        = local.id
+}
+
+resource "aws_security_group_rule" "ingress_prefix" {
+  count = local.enable_source_prefix_list_ids == true ? length(local.ports_source_prefix_product) : 0
+
+  type              = "ingress"
+  from_port         = element(element(local.ports_source_prefix_product, count.index), 0)
+  to_port           = element(element(local.ports_source_prefix_product, count.index), 0)
+  protocol          = var.protocol
+  prefix_list_ids   = [element(element(local.ports_source_prefix_product, count.index), 1)]
+  security_group_id = local.id
 }
