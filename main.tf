@@ -37,9 +37,13 @@ locals {
   enable_source_prefix_list_ids_eg = length(var.egress_prefix_list_ids) == 0 ? false : true
   enable_cidr_rules_ipv6_eg        = length(var.egress_allowed_ipv6) > 0
 
-  ports_source_sec_group_product_eg = setproduct(compact(var.egress_allowed_ports), length(var.egress_security_groups) > 0 ? var.egress_security_groups : [""])
-  ports_source_prefix_product_eg    = setproduct(compact(var.egress_allowed_ports), length(var.egress_prefix_list_ids) > 0 ? var.egress_prefix_list_ids : [""])
-  prefix_list_eg                    = var.egress_prefix_list_ids
+  ports_source_sec_group_product_eg = setproduct(
+    length(var.egress_allowed_ports) > 0 ? compact(var.egress_allowed_ports) : [""],
+  length(var.egress_security_groups) > 0 ? var.egress_security_groups : [""])
+  ports_source_prefix_product_eg = setproduct(
+    length(var.egress_allowed_ports) > 0 ? compact(var.egress_allowed_ports) : [""],
+  length(var.egress_prefix_list_ids) > 0 ? var.egress_prefix_list_ids : [""])
+  prefix_list_eg = var.egress_prefix_list_ids
 
 }
 
@@ -137,7 +141,7 @@ resource "aws_security_group_rule" "ingress_prefix" {
 #egress rules configuration
 
 resource "aws_security_group_rule" "egress_ipv4_rule" {
-  count = local.egress_rule == true ? 1 : 0
+  count = local.egress_rule == true ? length(compact(var.allowed_ports)) : 0
 
   type              = "egress"
   from_port         = element(var.egress_allowed_ports, count.index)

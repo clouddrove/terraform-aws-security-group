@@ -16,7 +16,3 @@ output "vpc_cidr_block_ipv6" {
   value       = module.vpc.ipv6_cidr_block
   description = "VPC IPV4 CIDR Block."
 }
-
-output "enable_source_sec_group_rules" {
-  value = module.security_group.enable_source_sec_group_rules
-}
