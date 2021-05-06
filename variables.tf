@@ -115,5 +115,49 @@ variable "prefix_list_ids" {
   type        = list(string)
   default     = []
   description = "Provide allow source Prefix id of resources"
+}
 
+##########################33
+# egress Rules parameters
+
+variable "egress_rule" {
+  type        = bool
+  default     = false
+  description = "Enable to create egress rule"
+}
+
+variable "egress_allowed_ports" {
+  type        = list(any)
+  default     = []
+  description = "List of allowed ingress ports"
+}
+
+variable "egress_allowed_ip" {
+  type        = list(any)
+  default     = []
+  description = "List of allowed ip."
+}
+
+variable "egress_protocol" {
+  type        = string
+  default     = "tcp"
+  description = "The protocol. If not icmp, tcp, udp, or all use the."
+}
+
+variable "egress_security_groups" {
+  type        = list(string)
+  default     = []
+  description = "List of Security Group IDs allowed to connect to the instance."
+}
+
+variable "egress_allowed_ipv6" {
+  type        = list(any)
+  default     = []
+  description = "List of allowed ipv6."
+}
+
+variable "egress_prefix_list_ids" {
+  type        = list(any)
+  default     = []
+  description = "List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress"
 }

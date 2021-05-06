@@ -21,6 +21,7 @@ module "labels" {
 
 locals {
   sg_existing                    = var.is_external == true
+  egress_rule                    = var.egress_rule == true
   id                             = local.sg_existing ? join("", data.aws_security_group.existing.*.id) : join("", aws_security_group.default.*.id)
   security_group_count           = var.enable_security_group == true ? 1 : 0
   enable_cidr_rules              = length(var.allowed_ip) > 0
@@ -30,6 +31,16 @@ locals {
   ports_source_sec_group_product = setproduct(compact(var.allowed_ports), length(var.security_groups) > 0 ? var.security_groups : [""])
   ports_source_prefix_product    = setproduct(compact(var.allowed_ports), length(var.prefix_list_ids) > 0 ? var.prefix_list_ids : [""])
   prefix_list                    = var.prefix_list_ids
+
+  #egress local parameters
+  enable_source_sec_group_rules_eg = length(var.egress_security_groups) == 0 ? false : true
+  enable_source_prefix_list_ids_eg = length(var.egress_prefix_list_ids) == 0 ? false : true
+  enable_cidr_rules_ipv6_eg        = length(var.egress_allowed_ipv6) > 0
+
+  ports_source_sec_group_product_eg = setproduct(compact(var.egress_allowed_ports), length(var.egress_security_groups) > 0 ? var.egress_security_groups : [""])
+  ports_source_prefix_product_eg    = setproduct(compact(var.egress_allowed_ports), length(var.egress_prefix_list_ids) > 0 ? var.egress_prefix_list_ids : [""])
+  prefix_list_eg                    = var.egress_prefix_list_ids
+
 }
 
 #Module      : SECURITY GROUP
@@ -57,7 +68,7 @@ data "aws_security_group" "existing" {
 #Description : Provides a security group rule resource. Represents a single egress
 #              group rule, which can be added to external Security Groups.
 resource "aws_security_group_rule" "egress" {
-  count = (var.enable_security_group == true && local.sg_existing == false) ? 1 : 0
+  count = (var.enable_security_group == true && local.sg_existing == false && local.egress_rule == false) ? 1 : 0
 
   type              = "egress"
   from_port         = 0
@@ -67,7 +78,7 @@ resource "aws_security_group_rule" "egress" {
   security_group_id = local.id
 }
 resource "aws_security_group_rule" "egress_ipv6" {
-  count = (var.enable_security_group == true && local.sg_existing == false) && local.enable_cidr_rules_ipv6 == true ? 1 : 0
+  count = (var.enable_security_group == true && local.sg_existing == false) && local.egress_rule == false && local.enable_cidr_rules_ipv6 == true ? 1 : 0
 
   type              = "egress"
   from_port         = 0
@@ -120,5 +131,52 @@ resource "aws_security_group_rule" "ingress_prefix" {
   to_port           = element(element(local.ports_source_prefix_product, count.index), 0)
   protocol          = var.protocol
   prefix_list_ids   = [element(element(local.ports_source_prefix_product, count.index), 1)]
+  security_group_id = local.id
+}
+
+#egress rules configuration
+
+resource "aws_security_group_rule" "egress_ipv4_rule" {
+  count = local.egress_rule == true ? 1 : 0
+
+  type              = "egress"
+  from_port         = element(var.egress_allowed_ports, count.index)
+  to_port           = element(var.egress_allowed_ports, count.index)
+  protocol          = var.egress_protocol
+  cidr_blocks       = var.egress_allowed_ip
+  security_group_id = local.id
+}
+
+resource "aws_security_group_rule" "egress_ipv6_rule" {
+  count = local.egress_rule == true && local.enable_cidr_rules_ipv6_eg == true ? 1 : 0
+
+  type              = "egress"
+  from_port         = element(var.egress_allowed_ports, count.index)
+  to_port           = element(var.egress_allowed_ports, count.index)
+  protocol          = var.egress_protocol
+  ipv6_cidr_blocks  = var.egress_allowed_ipv6
+  security_group_id = local.id
+  prefix_list_ids   = var.prefix_list
+}
+
+resource "aws_security_group_rule" "egress_sg_rule" {
+  count = local.egress_rule == true && local.enable_source_sec_group_rules_eg == true ? length(local.ports_source_sec_group_product_eg) : 0
+
+  type                     = "egress"
+  from_port                = element(element(local.ports_source_sec_group_product_eg, count.index), 0)
+  to_port                  = element(element(local.ports_source_sec_group_product_eg, count.index), 0)
+  protocol                 = var.egress_protocol
+  source_security_group_id = element(element(local.ports_source_sec_group_product_eg, count.index), 1)
+  security_group_id        = local.id
+}
+
+resource "aws_security_group_rule" "egress_prefix_rule" {
+  count = local.egress_rule == true && local.enable_source_prefix_list_ids_eg == true ? length(local.ports_source_prefix_product) : 0
+
+  type              = "egress"
+  from_port         = element(element(local.ports_source_prefix_product_eg, count.index), 0)
+  to_port           = element(element(local.ports_source_prefix_product_eg, count.index), 0)
+  protocol          = var.egress_protocol
+  prefix_list_ids   = [element(element(local.ports_source_prefix_product_eg, count.index), 1)]
   security_group_id = local.id
 }

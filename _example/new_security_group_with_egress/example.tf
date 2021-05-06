@@ -25,7 +25,16 @@ module "security_group" {
   allowed_ip            = ["172.16.0.0/16", "10.0.0.0/16"]
   allowed_ipv6          = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
   allowed_ports         = [22, 27017]
-  security_groups       = ["sg-xxxxxxxx"]
-  prefix_list_ids       = ["pl-xxxxxxxx"]
+  security_groups       = ["sg-xxxxxxxxx"]
+  prefix_list_ids       = ["pl-6da54004"]
+
+  egress_rule                  = true
+  egress_allowed_ip            = ["172.16.0.0/16", "10.0.0.0/16"]
+  egress_allowed_ports         = [22, 27017]
+  egress_protocol              = "tcp"
+  egress_allowed_ipv6          = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
+  egress_prefix_list_ids       = ["pl-xxxxxxxxx"]
+  egress_security_groups       = ["sg-xxxxxxxxx"]
+
 }
 
