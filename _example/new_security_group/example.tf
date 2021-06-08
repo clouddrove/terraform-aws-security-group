@@ -28,4 +28,3 @@ module "security_group" {
   security_groups       = ["sg-xxxxxxxx"]
   prefix_list_ids       = ["pl-xxxxxxxx"]
 }
-

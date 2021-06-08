@@ -18,13 +18,13 @@ module "security_group" {
   environment = "test"
   label_order = ["name", "environment"]
 
-  is_external           = true
-  existing_sg_id        = "sg-0539eb1f13224ec42"
-  vpc_id                = module.vpc.vpc_id
-  protocol              = "tcp"
-  description           = "Instance default security group (only egress access is allowed)."
-  allowed_ip            = ["172.16.0.0/16", "10.0.0.0/16"]
-  allowed_ipv6          = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
-  allowed_ports         = [22, 27017]
-  # security_groups       = ["sg-061165cd9a3f742d6"]
+  is_external    = true
+  existing_sg_id = "sg-0e9b47097401e92d0"
+  vpc_id         = module.vpc.vpc_id
+  protocol       = "tcp"
+  description    = "Instance default security group (only egress access is allowed)."
+  allowed_ip     = ["172.16.0.0/16", "10.0.0.0/16"]
+  allowed_ipv6   = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
+  allowed_ports  = [22, 27017]
+  #security_groups       = ["sg-061165cd9a3f742d6"]
 }

@@ -16,4 +16,3 @@ output "vpc_cidr_block_ipv6" {
   value       = module.vpc.ipv6_cidr_block
   description = "VPC IPV4 CIDR Block."
 }
-
