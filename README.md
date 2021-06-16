@@ -14,7 +14,7 @@
 <p align="center">
 
 <a href="https://www.terraform.io">
-  <img src="https://img.shields.io/badge/terraform-v0.14-green" alt="Terraform">
+  <img src="https://img.shields.io/badge/terraform-v0.15-green" alt="Terraform">
 </a>
 <a href="LICENSE.md">
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="Licence">
@@ -74,7 +74,7 @@ Here is an example of how you can use this module in your inventory structure:
 # use this
   module "security_group" {
     source        = "clouddrove/security-group/aws"
-    version       = "0.14.0"
+    version       = "0.15.0"
     name          = "security-group"
     environment   = "test"
     protocol      = "tcp"
@@ -100,12 +100,22 @@ Here is an example of how you can use this module in your inventory structure:
 | allowed\_ports | List of allowed ingress ports | `list(any)` | `[]` | no |
 | attributes | Additional attributes (e.g. `1`). | `list(any)` | `[]` | no |
 | description | The security group description. | `string` | `"Instance default security group (only egress access is allowed)."` | no |
+| egress\_allowed\_ip | List of allowed ip. | `list(any)` | `[]` | no |
+| egress\_allowed\_ipv6 | List of allowed ipv6. | `list(any)` | `[]` | no |
+| egress\_allowed\_ports | List of allowed ingress ports | `list(any)` | `[]` | no |
+| egress\_prefix\_list\_ids | List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress | `list(any)` | `[]` | no |
+| egress\_protocol | The protocol. If not icmp, tcp, udp, or all use the. | `string` | `"tcp"` | no |
+| egress\_rule | Enable to create egress rule | `bool` | `false` | no |
+| egress\_security\_groups | List of Security Group IDs allowed to connect to the instance. | `list(string)` | `[]` | no |
 | enable\_security\_group | Enable default Security Group with only Egress traffic allowed. | `bool` | `true` | no |
 | environment | Environment (e.g. `prod`, `dev`, `staging`). | `string` | `""` | no |
+| existing\_sg\_id | Provide existing security group id for updating existing rule | `string` | `null` | no |
+| is\_external | enable to udated existing security Group | `bool` | `false` | no |
 | label\_order | Label order, e.g. `name`,`application`. | `list(any)` | `[]` | no |
 | managedby | ManagedBy, eg 'CloudDrove'. | `string` | `"hello@clouddrove.com"` | no |
 | name | Name  (e.g. `app` or `cluster`). | `string` | `""` | no |
 | prefix\_list | List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress | `list(any)` | `[]` | no |
+| prefix\_list\_ids | Provide allow source Prefix id of resources | `list(string)` | `[]` | no |
 | protocol | The protocol. If not icmp, tcp, udp, or all use the. | `string` | `"tcp"` | no |
 | repository | Terraform current module repo | `string` | `"https://registry.terraform.io/modules/clouddrove/security-group/aws/"` | no |
 | security\_groups | List of Security Group IDs allowed to connect to the instance. | `list(string)` | `[]` | no |
