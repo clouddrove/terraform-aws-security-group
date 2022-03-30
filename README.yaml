@@ -8,7 +8,7 @@
 name: Terraform AWS Security Group
 
 # License of this project
-license: "MIT"
+license: "APACHE"
 
 # Canonical GitHub repo
 github_repo: clouddrove/terraform-aws-security-group
@@ -16,10 +16,10 @@ github_repo: clouddrove/terraform-aws-security-group
 # Badges to display
 badges:
   - name: "Terraform"
-    image: "https://img.shields.io/badge/terraform-v0.15-green"
+    image: "https://img.shields.io/badge/terraform-v1.1.7-green"
     url: "https://www.terraform.io"
   - name: "Licence"
-    image: "https://img.shields.io/badge/License-MIT-blue.svg"
+    image: "https://img.shields.io/badge/License-APACHE-blue.svg"
     url: "LICENSE.md"
 
 #  description of this project
