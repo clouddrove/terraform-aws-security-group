@@ -33,7 +33,7 @@ jobs:
         directory:
           - _example/new_security_group
           - _example/new_security_group_with_egress
-          - _example/updating_existing
+          - _example/updated_existing
 
     steps:
       - name: Checkout
