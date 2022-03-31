@@ -152,7 +152,7 @@ variable "egress_security_groups" {
 
 variable "egress_allowed_ipv6" {
   type        = list(any)
-  default     = ["2001:db8::/64"]
+  default     = []
   description = "List of allowed ipv6."
 }
 
