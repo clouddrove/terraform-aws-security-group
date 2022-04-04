@@ -89,7 +89,7 @@ resource "aws_security_group_rule" "egress_ipv6" {
   from_port         = 0
   to_port           = 65535
   protocol          = "-1"
-  ipv6_cidr_blocks  = ["0:0:0:0:0:ffff:334f:4545/64"]
+  ipv6_cidr_blocks  = ["0000:0000:0000:0000:0000:ffff:334f:4545/64"]
   security_group_id = local.id
   prefix_list_ids   = var.prefix_list
 }
