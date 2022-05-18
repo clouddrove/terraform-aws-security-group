@@ -80,7 +80,7 @@ Here is an example of how you can use this module in your inventory structure:
 # use this
   module "security_group" {
     source        = "clouddrove/security-group/aws"
-    version       = "0.15.0"
+    version       = "1.0.1"
     name          = "security-group"
     environment   = "test"
     protocol      = "tcp"
