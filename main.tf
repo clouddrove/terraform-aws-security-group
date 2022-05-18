@@ -85,6 +85,22 @@ resource "aws_security_group_rule" "egress" {
 resource "aws_security_group_rule" "egress_ipv6" {
   count = (var.enable_security_group == true && local.sg_existing == false) && local.egress_rule == false && local.enable_cidr_rules_ipv6 == true ? 1 : 0
 
+
+  dynamic "ingress" {
+    for_each = var.ingress 
+    content {
+      from_port        = ingress.value.from_port
+      to_port          = ingress.value.to_port
+      protocol         = ingress.value.protocol
+      description      = ingress.value.description
+      cidr_blocks      = ingress.value.cidr_blocks
+      ipv6_cidr_blocks = ingress.value.ipv6_cidr_blocks
+      prefix_list_ids  = ingress.value.prefix_list_ids
+      security_groups  = ingress.value.security_groups
+      self             = ingress.value.self
+    }
+  }
+
   type              = "egress"
   from_port         = 0
   to_port           = 65535
