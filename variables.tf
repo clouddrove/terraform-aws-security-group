@@ -50,6 +50,13 @@ variable "enable_security_group" {
   description = "Enable default Security Group with only Egress traffic allowed."
 }
 
+variable "ingress" {
+  type        = list(string)
+  default     = []
+   description = "List of ingress  to create by name"
+}
+
+
 variable "vpc_id" {
   type        = string
   default     = ""
