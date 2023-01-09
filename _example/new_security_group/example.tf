@@ -4,7 +4,7 @@ provider "aws" {
 
 module "vpc" {
   source      = "clouddrove/vpc/aws"
-  version     = "0.15.1"
+  version     = "1.3.0"
   name        = "vpc"
   environment = "test"
   label_order = ["name", "environment"]
@@ -25,6 +25,6 @@ module "security_group" {
   allowed_ip            = ["172.16.0.0/16", "10.0.0.0/16"]
   allowed_ipv6          = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
   allowed_ports         = [22, 27017]
-  security_groups       = ["sg-xxxxxxxx"]
-  prefix_list_ids       = ["pl-xxxxxxxx"]
+  security_groups       = ["sg-xxxxxxxxxxxx"]
+  prefix_list_ids       = ["pl-xxxxxxxxxxxx"]
 }
