@@ -9,7 +9,7 @@
 
 module "labels" {
   source  = "clouddrove/labels/aws"
-  version = "0.15.0"
+  version = "1.3.0"
 
   enabled     = var.enable_security_group
   name        = var.name
