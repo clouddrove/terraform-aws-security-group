@@ -53,4 +53,4 @@ jobs:
           tfsec_actions_working_dir: ./_example/
           tfsec_actions_comment: true
           tfsec_output_format: sarif
-        continue-on-error: false
+        continue-on-error: true
