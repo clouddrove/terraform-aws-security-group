@@ -89,7 +89,7 @@ variable "protocol" {
 
 variable "allowed_ipv6" {
   type        = list(any)
-  default     = []
+  default     = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
   description = "List of allowed ipv6."
 }
 
@@ -152,7 +152,7 @@ variable "egress_security_groups" {
 
 variable "egress_allowed_ipv6" {
   type        = list(any)
-  default     = []
+  default     = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
   description = "List of allowed ipv6."
 }
 

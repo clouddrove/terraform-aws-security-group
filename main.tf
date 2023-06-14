@@ -1,12 +1,7 @@
-# Managed By : CloudDrove
-# Description : This Script is used to create Security Group.
-# Copyright @ CloudDrove. All Right Reserved.
-
-#Module      : Label
-#Description : This terraform module is designed to generate consistent label names and tags
-#              for resources. You can use terraform-labels to implement a strict naming
-#              convention.
-
+##----------------------------------------------------------------------------------
+## This terraform module is designed to generate consistent label names and
+## tags for resources. You can use terraform-labels to implement a strict naming convention.
+##----------------------------------------------------------------------------------
 module "labels" {
   source  = "clouddrove/labels/aws"
   version = "1.3.0"
@@ -48,9 +43,9 @@ locals {
 
 }
 
-#Module      : SECURITY GROUP
-#Description : Here are an example of how you can use this module in your inventory
-#              structure:
+##----------------------------------------------------------------------------------
+## Here are an example of how you can use this resource in your inventory structure.
+##----------------------------------------------------------------------------------
 resource "aws_security_group" "default" {
   count = local.security_group_count
 
@@ -69,9 +64,10 @@ data "aws_security_group" "existing" {
   vpc_id = var.vpc_id
 }
 
-#Module      : SECURITY GROUP RULE FOR EGRESS
-#Description : Provides a security group rule resource. Represents a single egress
-#              group rule, which can be added to external Security Groups.
+##----------------------------------------------------------------------------------
+## Provides a security group rule resource. Represents a single egress
+## group rule, which can be added to external Security Groups.
+##----------------------------------------------------------------------------------
 resource "aws_security_group_rule" "egress" {
   count = (var.enable_security_group == true && local.sg_existing == false && local.egress_rule == false) ? 1 : 0
 
@@ -93,9 +89,11 @@ resource "aws_security_group_rule" "egress_ipv6" {
   security_group_id = local.id
   prefix_list_ids   = var.prefix_list
 }
-#Module      : SECURITY GROUP RULE FOR INGRESS
-#Description : Provides a security group rule resource. Represents a single ingress
-#              group rule, which can be added to external Security Groups.
+
+##----------------------------------------------------------------------------------
+## Provides a security group rule resource. Represents a single ingress
+## group rule, which can be added to external Security Groups.
+##----------------------------------------------------------------------------------
 resource "aws_security_group_rule" "ingress" {
   count = local.enable_cidr_rules == true ? length(compact(var.allowed_ports)) : 0
 
@@ -139,8 +137,10 @@ resource "aws_security_group_rule" "ingress_prefix" {
   security_group_id = local.id
 }
 
-#egress rules configuration
 
+##----------------------------------------------------------------------------------
+## egress rules configuration.
+##----------------------------------------------------------------------------------
 resource "aws_security_group_rule" "egress_ipv4_rule" {
   count = local.egress_rule == true ? length(compact(var.allowed_ports)) : 0
 
