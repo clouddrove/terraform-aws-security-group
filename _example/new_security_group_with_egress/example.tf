@@ -27,12 +27,12 @@ module "security_group" {
   environment = "test"
   label_order = ["name", "environment"]
 
-  vpc_id                = module.vpc.vpc_id
-  allowed_ip            = ["172.16.0.0/16", "10.0.0.0/16"]
-  allowed_ipv6          = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
-  allowed_ports         = [22, 27017]
-  security_groups       = ["sg-xxxxxxxxx"]
-  prefix_list_ids       = ["pl-6da54004"]
+  vpc_id          = module.vpc.vpc_id
+  allowed_ip      = ["172.16.0.0/16", "10.0.0.0/16"]
+  allowed_ipv6    = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
+  allowed_ports   = [22, 27017]
+  security_groups = ["sg-xxxxxxxxx"]
+  prefix_list_ids = ["pl-6da54004"]
 
   egress_rule            = true
   egress_allowed_ip      = ["172.16.0.0/16", "10.0.0.0/16"]

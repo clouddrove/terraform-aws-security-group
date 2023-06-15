@@ -27,9 +27,9 @@ module "security_group" {
   environment = "test"
   label_order = ["name", "environment"]
 
-  vpc_id                = module.vpc.vpc_id
-  allowed_ip            = ["172.16.0.0/16", "10.0.0.0/16"]
-  allowed_ports         = [22, 27017]
-  security_groups       = ["sg-xxxxxxxxxxxx"]
-  prefix_list_ids       = ["pl-xxxxxxxxxxxx"]
+  vpc_id          = module.vpc.vpc_id
+  allowed_ip      = ["172.16.0.0/16", "10.0.0.0/16"]
+  allowed_ports   = [22, 27017]
+  security_groups = ["sg-xxxxxxxxxxxx"]
+  prefix_list_ids = ["pl-xxxxxxxxxxxx"]
 }

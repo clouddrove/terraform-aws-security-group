@@ -63,6 +63,18 @@ variable "description" {
   description = "The security group description."
 }
 
+variable "security_group_egress_rule_description" {
+  type        = string
+  default     = ""
+  description = "Description of the egress rule."
+}
+
+variable "security_group_egress_ipv6_rule_description" {
+  type        = string
+  default     = ""
+  description = "Description of the egress egress-ipv6 rule."
+}
+
 variable "allowed_ports" {
   type        = list(any)
   default     = []
