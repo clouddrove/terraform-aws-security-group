@@ -65,14 +65,14 @@ variable "description" {
 
 variable "security_group_egress_rule_description" {
   type        = string
-  default     = ""
-  description = "Description of the egress rule."
+  default     = "Description of the egress rule."
+  description = "Represents a single ingress or egress group rule, which can be added to external Security Groups."
 }
 
 variable "security_group_egress_ipv6_rule_description" {
   type        = string
-  default     = ""
-  description = "Description of the egress egress-ipv6 rule."
+  default     = "Description of the egress rule."
+  description = "Represents a single ingress or egress group egress-ipv6 rule, which can be added to external Security Groups."
 }
 
 variable "allowed_ports" {
