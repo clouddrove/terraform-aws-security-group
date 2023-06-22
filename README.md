@@ -74,21 +74,62 @@ This module has a few dependencies:
 **IMPORTANT:** Since the `master` branch used in `source` varies based on new modifications, we suggest that you use the release versions [here](https://github.com/clouddrove/terraform-aws-security-group/releases).
 
 
-### Simple Example
+### NEW_SECURITY_GROUP
 Here is an example of how you can use this module in your inventory structure:
 ```hcl
 # use this
   module "security_group" {
     source        = "clouddrove/security-group/aws"
     version       = "1.3.0"
-    name          = "security-group"
-    environment   = "test"
-    protocol      = "tcp"
-    label_order   = ["name", "environment"]
-    vpc_id        = "vpc-xxxxxxxxx"
-    allowed_ip    = ["172.16.0.0/16", "10.0.0.0/16"]
-    allowed_ipv6  = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
-    allowed_ports = [22, 27017]
+    name        = "security-group"
+    environment = "test"
+    label_order = ["name", "environment"]
+  
+    vpc_id                = module.vpc.vpc_id
+    allowed_ip            = ["172.16.0.0/16", "10.0.0.0/16"]
+    allowed_ports         = [22, 27017]
+    security_groups       = ["sg-xxxxxxxxxxxx"]
+    prefix_list_ids       = ["pl-xxxxxxxxxxxx"]
+  }
+```
+### NEW_SECURITY_GROUP_WITH_EGRESS
+  module "security_group" {
+    source        = "clouddrove/security-group/aws"
+    version       = "1.3.0"
+    name        = "security-group"
+    environment = "test"
+    label_order = ["name", "environment"]
+  
+    vpc_id                = module.vpc.vpc_id
+    allowed_ip            = ["172.16.0.0/16", "10.0.0.0/16"]
+    allowed_ipv6          = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
+    allowed_ports         = [22, 27017]
+    security_groups       = ["sg-xxxxxxxxx"]
+    prefix_list_ids       = ["pl-6da54004"]
+  
+    egress_rule            = true
+    egress_allowed_ip      = ["172.16.0.0/16", "10.0.0.0/16"]
+    egress_allowed_ports   = [22, 27017]
+    egress_protocol        = "tcp"
+    egress_prefix_list_ids = ["pl-xxxxxxxxx"]
+    egress_security_groups = ["sg-xxxxxxxxx"]
+  
+  }
+```
+### UPDATED_EXISTING
+module "security_group" {
+    source        = "clouddrove/security-group/aws"
+    version       = "1.3.0"
+    name        = "security-group"
+    environment = "test"
+    label_order = ["name", "environment"]
+  
+    is_external     = true
+    existing_sg_id  = "sg-xxxxxxxxxxxx"
+    vpc_id          = module.vpc.vpc_id
+    allowed_ip      = ["172.16.0.0/16", "10.0.0.0/16"]
+    allowed_ports   = [22, 27017]
+    security_groups = ["sg-xxxxxxxxxxxxx"]
   }
 ```
 
@@ -102,12 +143,12 @@ Here is an example of how you can use this module in your inventory structure:
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | allowed\_ip | List of allowed ip. | `list(any)` | `[]` | no |
-| allowed\_ipv6 | List of allowed ipv6. | `list(any)` | `[]` | no |
+| allowed\_ipv6 | List of allowed ipv6. | `list(any)` | <pre>[<br>  "2405:201:5e00:3684:cd17:9397:5734:a167/128"<br>]</pre> | no |
 | allowed\_ports | List of allowed ingress ports | `list(any)` | `[]` | no |
 | attributes | Additional attributes (e.g. `1`). | `list(any)` | `[]` | no |
 | description | The security group description. | `string` | `"Instance default security group (only egress access is allowed)."` | no |
 | egress\_allowed\_ip | List of allowed ip. | `list(any)` | `[]` | no |
-| egress\_allowed\_ipv6 | List of allowed ipv6. | `list(any)` | `[]` | no |
+| egress\_allowed\_ipv6 | List of allowed ipv6. | `list(any)` | <pre>[<br>  "2405:201:5e00:3684:cd17:9397:5734:a167/128"<br>]</pre> | no |
 | egress\_allowed\_ports | List of allowed ingress ports | `list(any)` | `[]` | no |
 | egress\_prefix\_list\_ids | List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress | `list(any)` | `[]` | no |
 | egress\_protocol | The protocol. If not icmp, tcp, udp, or all use the. | `string` | `"tcp"` | no |
@@ -124,6 +165,8 @@ Here is an example of how you can use this module in your inventory structure:
 | prefix\_list\_ids | Provide allow source Prefix id of resources | `list(string)` | `[]` | no |
 | protocol | The protocol. If not icmp, tcp, udp, or all use the. | `string` | `"tcp"` | no |
 | repository | Terraform current module repo | `string` | `"https://github.com/clouddrove/terraform-aws-security-group"` | no |
+| security\_group\_egress\_ipv6\_rule\_description | Represents a single ingress or egress group egress-ipv6 rule, which can be added to external Security Groups. | `string` | `"Description of the egress rule."` | no |
+| security\_group\_egress\_rule\_description | Represents a single ingress or egress group rule, which can be added to external Security Groups. | `string` | `"Description of the egress rule."` | no |
 | security\_groups | List of Security Group IDs allowed to connect to the instance. | `list(string)` | `[]` | no |
 | tags | Additional tags (e.g. map(`BusinessUnit`,`XYZ`). | `map(string)` | `{}` | no |
 | vpc\_id | The ID of the VPC that the instance security group belongs to. | `string` | `""` | no |
