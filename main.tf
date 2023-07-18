@@ -1,27 +1,16 @@
-
-####----------------------------------------------------------------------------------
-## A VPC is a virtual network that closely resembles a traditional network that you'd operate in your own data center.
-####----------------------------------------------------------------------------------
-
-module "vpc" {
-  source      = "clouddrove/vpc/aws"
-  version     = "1.3.1"
-  name        = "vpc"
-  environment = "prashant"
-  label_order = ["name", "environment"]
-  cidr_block  = "10.0.0.0/16"
-}
-
+#-------------------------------------------------------------------------------
+### prefix_list
+#-------------------------------------------------------------------------------
 module "prefix_list" {
   source = "./modules/prefix_list"
 
-  name        = "prefix_list"
-  environment = "prashant"
-  label_order = ["name", "environment"]
+  name        = var.name
+  environment = var.environment
+  label_order = var.label_order
 
   max_entries         = var.max_entries
   prefix_list_enabled = var.prefix_list_enabled
-  entry = var.entry
+  entry               = var.entry
 }
 
 ##----------------------------------------------------------------------------------
@@ -34,10 +23,19 @@ module "security_group" {
   environment = "test"
   label_order = ["name", "environment"]
 
-  enable_security_group = var.new_enable_security_group
-  vpc_id          = module.vpc.vpc_id
-  allowed_ip      = var.allowed_ip
-  allowed_ports   = var.allowed_ports
-  security_groups = var.security_groups
-  prefix_list_ids = length(var.prefix_list_id) < 1 ? module.prefix_list.prefix_id : var.prefix_list_id
+  enable_security_group  = var.new_enable_security_group
+  vpc_id                 = var.vpc_id
+  allowed_ip             = var.allowed_ip
+  allowed_ports          = var.allowed_ports
+  security_groups        = var.security_groups
+  allowed_ipv6           = var.allowed_ipv6
+  egress_rule            = var.egress_rule
+  egress_allowed_ip      = var.egress_allowed_ip
+  egress_allowed_ports   = var.egress_allowed_ports
+  egress_protocol        = var.egress_protocol
+  egress_prefix_list_ids = var.egress_prefix_list_ids
+  egress_security_groups = var.egress_security_groups
+  is_external = var.is_external
+  existing_sg_id = var.existing_sg_id
+  prefix_list_ids        = length(var.prefix_list_id) < 1 ? module.prefix_list.prefix_id : var.prefix_list_id
 }
