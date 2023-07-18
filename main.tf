@@ -35,7 +35,7 @@ module "security_group" {
   egress_protocol        = var.egress_protocol
   egress_prefix_list_ids = var.egress_prefix_list_ids
   egress_security_groups = var.egress_security_groups
-  is_external = var.is_external
-  existing_sg_id = var.existing_sg_id
+  is_external            = var.is_external
+  existing_sg_id         = var.existing_sg_id
   prefix_list_ids        = length(var.prefix_list_id) < 1 ? module.prefix_list.prefix_id : var.prefix_list_id
 }
