@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2023-07-18
+### :sparkles: New Features
+- [`1b7e956`](https://github.com/clouddrove/terraform-aws-security-group/commit/1b7e95627779862ef1bee65cbbfd25872a274446) - updated changelog.yml name and file *(commit by [@vibhutigoyal](https://github.com/vibhutigoyal))*
+- [`72861b1`](https://github.com/clouddrove/terraform-aws-security-group/commit/72861b17ab0f607dc7974181eb69eb3765f9910e) - add deepsource & added assignees,reviewer in dependabot *(commit by [@Tanveer143s](https://github.com/Tanveer143s))*
+- [`ca21e6b`](https://github.com/clouddrove/terraform-aws-security-group/commit/ca21e6be48deeb015e23813fcd16a0a06cf0218b) - added description and update example.tf *(commit by [@theprashantyadav](https://github.com/theprashantyadav))*
+- [`b01f937`](https://github.com/clouddrove/terraform-aws-security-group/commit/b01f937200eb9dd53e1a999fa7a95531887eaec4) - Update Readme with latest example *(commit by [@theprashantyadav](https://github.com/theprashantyadav))*
+- [`4aa24ae`](https://github.com/clouddrove/terraform-aws-security-group/commit/4aa24aec1f731f2de3e3e3fb120ffcf767bed293) - added security-group-rule description *(commit by [@theprashantyadav](https://github.com/theprashantyadav))*
+- [`10a3adb`](https://github.com/clouddrove/terraform-aws-security-group/commit/10a3adbfe54cd46a69bff0591596bf22ab6c8ab1) - added security-group-rule description *(commit by [@theprashantyadav](https://github.com/theprashantyadav))*
+- [`ac15889`](https://github.com/clouddrove/terraform-aws-security-group/commit/ac15889db46193327e0c1465c2469716653a6e7b) - added new resource and update module *(commit by [@theprashantyadav](https://github.com/theprashantyadav))*
+- [`925ac6c`](https://github.com/clouddrove/terraform-aws-security-group/commit/925ac6ce2e0292e222116e77eed370a00d8c8108) - add prefix list id argument *(commit by [@theprashantyadav](https://github.com/theprashantyadav))*
+- [`e78d969`](https://github.com/clouddrove/terraform-aws-security-group/commit/e78d9692242c07ed3da373139ff751b8199d2f62) - add prefix list id argument *(commit by [@theprashantyadav](https://github.com/theprashantyadav))*
+- [`2730940`](https://github.com/clouddrove/terraform-aws-security-group/commit/27309400a1ff69adc54eac0c2c7dcd8946917b97) - add prefix list id argument *(commit by [@theprashantyadav](https://github.com/theprashantyadav))*
+- [`521e2ec`](https://github.com/clouddrove/terraform-aws-security-group/commit/521e2ecfbc9ad14168ad361abf20a4ba6c5b237e) - add prefix list id argument *(commit by [@theprashantyadav](https://github.com/theprashantyadav))*
+- [`7e934bb`](https://github.com/clouddrove/terraform-aws-security-group/commit/7e934bb90fc93575ad20cb0af70b29580d4e6a7a) - add prefix list id argument *(commit by [@theprashantyadav](https://github.com/theprashantyadav))*
+- [`7e98c4c`](https://github.com/clouddrove/terraform-aws-security-group/commit/7e98c4c7c151809a4eb8ea8f27588ff321f045cc) - add prefix list id argument *(commit by [@theprashantyadav](https://github.com/theprashantyadav))*
+
+### :bug: Bug Fixes
+- [`aed23e6`](https://github.com/clouddrove/terraform-aws-security-group/commit/aed23e6a0938639f6e4de4676ef5ce0956f04057) - updated vpc tag *(commit by [@mamrajyadav](https://github.com/mamrajyadav))*
+
+
 ## [v1.3.0] - 2023-01-9
 ### :bug: Bug Fixes
 - [`e3fa16a`](https://github.com/clouddrove/terraform-aws-security-group/commit/e3fa16a10808c8c641a43c2766c347e73edc487c) - update workflows.
@@ -105,3 +125,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.15.0]: https://github.com/clouddrove/terraform-aws-security-group/compare/0.14.0...0.15.0
 [v1.0.1]: https://github.com/clouddrove/terraform-aws-security-group/compare/0.15.0...1.0.1
 [v1.3.0]: https://github.com/clouddrove/terraform-aws-security-group/compare/1.0.1...1.3.0
+[2.0.0]: https://github.com/clouddrove/terraform-aws-security-group/compare/1.3.0...2.0.0
