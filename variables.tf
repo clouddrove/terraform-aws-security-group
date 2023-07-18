@@ -1,15 +1,7 @@
-#Module      : LABEL
-#Description : Terraform label module variables.
 variable "name" {
   type        = string
   default     = ""
   description = "Name  (e.g. `app` or `cluster`)."
-}
-
-variable "repository" {
-  type        = string
-  default     = "https://github.com/clouddrove/terraform-aws-security-group"
-  description = "Terraform current module repo"
 }
 
 variable "environment" {
@@ -18,36 +10,10 @@ variable "environment" {
   description = "Environment (e.g. `prod`, `dev`, `staging`)."
 }
 
-variable "attributes" {
-  type        = list(any)
-  default     = []
-  description = "Additional attributes (e.g. `1`)."
-}
-
-variable "managedby" {
-  type        = string
-  default     = "hello@clouddrove.com"
-  description = "ManagedBy, eg 'CloudDrove'."
-}
-
 variable "label_order" {
   type        = list(any)
   default     = []
   description = "Label order, e.g. `name`,`application`."
-}
-
-variable "tags" {
-  type        = map(string)
-  default     = {}
-  description = "Additional tags (e.g. map(`BusinessUnit`,`XYZ`)."
-}
-
-# Module      : SECURITY GROUP
-# Description : Terraform security group module variables.
-variable "enable_security_group" {
-  type        = bool
-  default     = true
-  description = "Enable default Security Group with only Egress traffic allowed."
 }
 
 variable "vpc_id" {
@@ -57,22 +23,28 @@ variable "vpc_id" {
   sensitive   = true
 }
 
-variable "description" {
-  type        = string
-  default     = "Instance default security group (only egress access is allowed)."
-  description = "The security group description."
+variable "prefix_list_id" {
+  type        = list(string)
+  default     = []
+  description = "The ID of the prefix list."
 }
 
-variable "security_group_egress_rule_description" {
-  type        = string
-  default     = "Description of the egress rule."
-  description = "Represents a single ingress or egress group rule, which can be added to external Security Groups."
+variable "prefix_list_enabled" {
+  type        = bool
+  default     = true
+  description = "Enable prefix_list."
 }
 
-variable "security_group_egress_ipv6_rule_description" {
-  type        = string
-  default     = "Description of the egress rule."
-  description = "Represents a single ingress or egress group egress-ipv6 rule, which can be added to external Security Groups."
+variable "max_entries" {
+  type        = number
+  default     = 5
+  description = "The maximum number of entries that this prefix list can contain."
+}
+
+variable "entry" {
+  type        = list(any)
+  default     = []
+  description = "Can be specified multiple times for each prefix list entry."
 }
 
 variable "allowed_ports" {
@@ -93,10 +65,10 @@ variable "security_groups" {
   description = "List of Security Group IDs allowed to connect to the instance."
 }
 
-variable "protocol" {
-  type        = string
-  default     = "tcp"
-  description = "The protocol. If not icmp, tcp, udp, or all use the."
+variable "new_enable_security_group" {
+  type        = bool
+  default     = true
+  description = "Enable default Security Group with only Egress traffic allowed."
 }
 
 variable "allowed_ipv6" {
@@ -105,10 +77,40 @@ variable "allowed_ipv6" {
   description = "List of allowed ipv6."
 }
 
-variable "prefix_list" {
+variable "egress_rule" {
+  type        = bool
+  default     = false
+  description = "Enable to create egress rule"
+}
+
+variable "egress_allowed_ip" {
+  type        = list(any)
+  default     = []
+  description = "List of allowed ip."
+}
+
+variable "egress_allowed_ports" {
+  type        = list(any)
+  default     = []
+  description = "List of allowed ingress ports"
+}
+
+variable "egress_protocol" {
+  type        = string
+  default     = "tcp"
+  description = "The protocol. If not icmp, tcp, udp, or all use the."
+}
+
+variable "egress_prefix_list_ids" {
   type        = list(any)
   default     = []
   description = "List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress"
+}
+
+variable "egress_security_groups" {
+  type        = list(string)
+  default     = []
+  description = "List of Security Group IDs allowed to connect to the instance."
 }
 
 variable "is_external" {
@@ -121,55 +123,4 @@ variable "existing_sg_id" {
   type        = string
   default     = null
   description = "Provide existing security group id for updating existing rule"
-}
-
-variable "prefix_list_ids" {
-  type        = list(string)
-  default     = []
-  description = "Provide allow source Prefix id of resources"
-}
-
-##########################33
-# egress Rules parameters
-
-variable "egress_rule" {
-  type        = bool
-  default     = false
-  description = "Enable to create egress rule"
-}
-
-variable "egress_allowed_ports" {
-  type        = list(any)
-  default     = []
-  description = "List of allowed ingress ports"
-}
-
-variable "egress_allowed_ip" {
-  type        = list(any)
-  default     = []
-  description = "List of allowed ip."
-}
-
-variable "egress_protocol" {
-  type        = string
-  default     = "tcp"
-  description = "The protocol. If not icmp, tcp, udp, or all use the."
-}
-
-variable "egress_security_groups" {
-  type        = list(string)
-  default     = []
-  description = "List of Security Group IDs allowed to connect to the instance."
-}
-
-variable "egress_allowed_ipv6" {
-  type        = list(any)
-  default     = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
-  description = "List of allowed ipv6."
-}
-
-variable "egress_prefix_list_ids" {
-  type        = list(any)
-  default     = []
-  description = "List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress"
 }
