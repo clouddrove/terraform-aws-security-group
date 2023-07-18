@@ -5,11 +5,15 @@ on:
   pull_request:
   workflow_dispatch:
 jobs:
-  tf-checks-complete-example:
+  tf-checks-new-security-group-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
     with:
-      working_directory: './_examples/complete/'
-  tf-checks-basic-example:
+      working_directory: './_example/new_security_group/'
+  tf-checks-new-security-group-with-egres-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
     with:
-      working_directory: './_examples/basic/'
+      working_directory: './_example/new_security_group_with_egres/'
+  tf-checks-updated-existing-example:
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    with:
+      working_directory: './_example/updated_existing/'
