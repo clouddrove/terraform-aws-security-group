@@ -41,25 +41,25 @@ usage: |-
       environment = "test"
       label_order = ["name", "environment"]
 
-  vpc_id                    = module.vpc.vpc_id
-  new_enable_security_group = true
-  allowed_ip                = ["172.16.0.0/16", "10.0.0.0/16"]
-  allowed_ports             = [22, 27017]
-  security_groups           = []
-  max_entries               = 5
-  prefix_list_enabled       = true
-  prefix_list_id            = []
-  entry = [
-    {
-      cidr        = "10.0.0.0/16"
-      description = "VPC CIDR"
-    },
-    {
-      cidr        = "10.10.0.0/24"
-      description = "VPC CIDR"
+      vpc_id                    = module.vpc.vpc_id
+      new_enable_security_group = true
+      allowed_ip                = ["172.16.0.0/16", "10.0.0.0/16"]
+      allowed_ports             = [22, 27017]
+      security_groups           = []
+      max_entries               = 5
+      prefix_list_enabled       = true
+      prefix_list_id            = []
+      entry = [
+        {
+          cidr        = "10.0.0.0/16"
+          description = "VPC CIDR"
+        },
+        {
+          cidr        = "10.10.0.0/24"
+          description = "VPC CIDR"
+        }
+      ]
     }
-  ]
-}
   ```
   ### NEW_SECURITY_GROUP_WITH_EGRESS
     module "security_group" {
