@@ -19,9 +19,9 @@ module "prefix_list" {
 module "security_group" {
   source = "./modules/security_group"
 
-  name        = "security-group"
-  environment = "test"
-  label_order = ["name", "environment"]
+  name        = var.name
+  environment = var.environment
+  label_order = var.label_order
 
   enable_security_group  = var.new_enable_security_group
   vpc_id                 = var.vpc_id
