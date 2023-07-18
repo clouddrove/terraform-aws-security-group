@@ -4,7 +4,7 @@
 
 
 <h1 align="center">
-    Terraform AWS Security Group
+    Terraform Module Security-Group
 </h1>
 
 <p align="center" style="font-size: 1.2rem;"> 
@@ -13,17 +13,14 @@
 
 <p align="center">
 
-<a href="https://www.terraform.io">
-  <img src="https://img.shields.io/badge/terraform-v1.1.7-green" alt="Terraform">
-</a>
-<a href="LICENSE.md">
-  <img src="https://img.shields.io/badge/License-APACHE-blue.svg" alt="Licence">
+<a href="https://github.com/clouddrove/terraform-aws-security-group/releases/latest">
+  <img src="https://img.shields.io/github/release/clouddrove/terraform-aws-security-group.svg" alt="Latest Release">
 </a>
 <a href="https://github.com/clouddrove/terraform-aws-security-group/actions/workflows/tfsec.yml">
   <img src="https://github.com/clouddrove/terraform-aws-security-group/actions/workflows/tfsec.yml/badge.svg" alt="tfsec">
 </a>
-<a href="https://github.com/clouddrove/terraform-aws-security-group/actions/workflows/terraform.yml">
-  <img src="https://github.com/clouddrove/terraform-aws-security-group/actions/workflows/terraform.yml/badge.svg" alt="static-checks">
+<a href="LICENSE.md">
+  <img src="https://img.shields.io/badge/License-APACHE-blue.svg" alt="Licence">
 </a>
 
 
@@ -33,10 +30,10 @@
 <a href='https://facebook.com/sharer/sharer.php?u=https://github.com/clouddrove/terraform-aws-security-group'>
   <img title="Share on Facebook" src="https://user-images.githubusercontent.com/50652676/62817743-4f64cb80-bb59-11e9-90c7-b057252ded50.png" />
 </a>
-<a href='https://www.linkedin.com/shareArticle?mini=true&title=Terraform+AWS+Security+Group&url=https://github.com/clouddrove/terraform-aws-security-group'>
+<a href='https://www.linkedin.com/shareArticle?mini=true&title=Terraform+Module+Security-Group&url=https://github.com/clouddrove/terraform-aws-security-group'>
   <img title="Share on LinkedIn" src="https://user-images.githubusercontent.com/50652676/62817742-4e339e80-bb59-11e9-87b9-a1f68cae1049.png" />
 </a>
-<a href='https://twitter.com/intent/tweet/?text=Terraform+AWS+Security+Group&url=https://github.com/clouddrove/terraform-aws-security-group'>
+<a href='https://twitter.com/intent/tweet/?text=Terraform+Module+Security-Group&url=https://github.com/clouddrove/terraform-aws-security-group'>
   <img title="Share on Twitter" src="https://user-images.githubusercontent.com/50652676/62817740-4c69db00-bb59-11e9-8a79-3580fbbf6d5c.png" />
 </a>
 
@@ -74,6 +71,7 @@ This module has a few dependencies:
 **IMPORTANT:** Since the `master` branch used in `source` varies based on new modifications, we suggest that you use the release versions [here](https://github.com/clouddrove/terraform-aws-security-group/releases).
 
 
+Here are some examples of how you can use this module in your inventory structure:
 ### NEW_SECURITY_GROUP
 Here is an example of how you can use this module in your inventory structure:
 ```hcl
@@ -84,12 +82,25 @@ Here is an example of how you can use this module in your inventory structure:
     name        = "security-group"
     environment = "test"
     label_order = ["name", "environment"]
-  
-    vpc_id                = module.vpc.vpc_id
-    allowed_ip            = ["172.16.0.0/16", "10.0.0.0/16"]
-    allowed_ports         = [22, 27017]
-    security_groups       = ["sg-xxxxxxxxxxxx"]
-    prefix_list_ids       = ["pl-xxxxxxxxxxxx"]
+
+    vpc_id                    = module.vpc.vpc_id
+    new_enable_security_group = true
+    allowed_ip                = ["172.16.0.0/16", "10.0.0.0/16"]
+    allowed_ports             = [22, 27017]
+    security_groups           = []
+    max_entries               = 5
+    prefix_list_enabled       = true
+    prefix_list_id            = []
+    entry = [
+      {
+        cidr        = "10.0.0.0/16"
+        description = "VPC CIDR"
+      },
+      {
+        cidr        = "10.10.0.0/24"
+        description = "VPC CIDR"
+      }
+    ]
   }
 ```
 ### NEW_SECURITY_GROUP_WITH_EGRESS
@@ -99,21 +110,21 @@ Here is an example of how you can use this module in your inventory structure:
     name        = "security-group"
     environment = "test"
     label_order = ["name", "environment"]
-  
-    vpc_id                = module.vpc.vpc_id
-    allowed_ip            = ["172.16.0.0/16", "10.0.0.0/16"]
-    allowed_ipv6          = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
-    allowed_ports         = [22, 27017]
-    security_groups       = ["sg-xxxxxxxxx"]
-    prefix_list_ids       = ["pl-6da54004"]
-  
+
+    vpc_id                 = module.vpc.vpc_id
+    prefix_list_enabled    = false
+    allowed_ip             = ["172.16.0.0/16", "10.0.0.0/16"]
+    allowed_ipv6           = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
+    allowed_ports          = [22, 27017]
+    security_groups        = ["sg-xxxxxxxxx"]
+    prefix_list_id         = ["pl-6da54004"]
     egress_rule            = true
     egress_allowed_ip      = ["172.16.0.0/16", "10.0.0.0/16"]
     egress_allowed_ports   = [22, 27017]
     egress_protocol        = "tcp"
     egress_prefix_list_ids = ["pl-xxxxxxxxx"]
     egress_security_groups = ["sg-xxxxxxxxx"]
-  
+
   }
 ```
 ### UPDATED_EXISTING
@@ -123,7 +134,7 @@ module "security_group" {
     name        = "security-group"
     environment = "test"
     label_order = ["name", "environment"]
-  
+
     is_external     = true
     existing_sg_id  = "sg-xxxxxxxxxxxx"
     vpc_id          = module.vpc.vpc_id
@@ -145,38 +156,32 @@ module "security_group" {
 | allowed\_ip | List of allowed ip. | `list(any)` | `[]` | no |
 | allowed\_ipv6 | List of allowed ipv6. | `list(any)` | <pre>[<br>  "2405:201:5e00:3684:cd17:9397:5734:a167/128"<br>]</pre> | no |
 | allowed\_ports | List of allowed ingress ports | `list(any)` | `[]` | no |
-| attributes | Additional attributes (e.g. `1`). | `list(any)` | `[]` | no |
-| description | The security group description. | `string` | `"Instance default security group (only egress access is allowed)."` | no |
 | egress\_allowed\_ip | List of allowed ip. | `list(any)` | `[]` | no |
-| egress\_allowed\_ipv6 | List of allowed ipv6. | `list(any)` | <pre>[<br>  "2405:201:5e00:3684:cd17:9397:5734:a167/128"<br>]</pre> | no |
 | egress\_allowed\_ports | List of allowed ingress ports | `list(any)` | `[]` | no |
 | egress\_prefix\_list\_ids | List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress | `list(any)` | `[]` | no |
 | egress\_protocol | The protocol. If not icmp, tcp, udp, or all use the. | `string` | `"tcp"` | no |
 | egress\_rule | Enable to create egress rule | `bool` | `false` | no |
 | egress\_security\_groups | List of Security Group IDs allowed to connect to the instance. | `list(string)` | `[]` | no |
-| enable\_security\_group | Enable default Security Group with only Egress traffic allowed. | `bool` | `true` | no |
+| entry | Can be specified multiple times for each prefix list entry. | `list(any)` | `[]` | no |
 | environment | Environment (e.g. `prod`, `dev`, `staging`). | `string` | `""` | no |
 | existing\_sg\_id | Provide existing security group id for updating existing rule | `string` | `null` | no |
 | is\_external | enable to udated existing security Group | `bool` | `false` | no |
 | label\_order | Label order, e.g. `name`,`application`. | `list(any)` | `[]` | no |
-| managedby | ManagedBy, eg 'CloudDrove'. | `string` | `"hello@clouddrove.com"` | no |
+| max\_entries | The maximum number of entries that this prefix list can contain. | `number` | `5` | no |
 | name | Name  (e.g. `app` or `cluster`). | `string` | `""` | no |
-| prefix\_list | List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress | `list(any)` | `[]` | no |
-| prefix\_list\_ids | Provide allow source Prefix id of resources | `list(string)` | `[]` | no |
-| protocol | The protocol. If not icmp, tcp, udp, or all use the. | `string` | `"tcp"` | no |
-| repository | Terraform current module repo | `string` | `"https://github.com/clouddrove/terraform-aws-security-group"` | no |
-| security\_group\_egress\_ipv6\_rule\_description | Represents a single ingress or egress group egress-ipv6 rule, which can be added to external Security Groups. | `string` | `"Description of the egress rule."` | no |
-| security\_group\_egress\_rule\_description | Represents a single ingress or egress group rule, which can be added to external Security Groups. | `string` | `"Description of the egress rule."` | no |
+| new\_enable\_security\_group | Enable default Security Group with only Egress traffic allowed. | `bool` | `true` | no |
+| prefix\_list\_enabled | Enable prefix\_list. | `bool` | `true` | no |
+| prefix\_list\_id | The ID of the prefix list. | `list(string)` | `[]` | no |
 | security\_groups | List of Security Group IDs allowed to connect to the instance. | `list(string)` | `[]` | no |
-| tags | Additional tags (e.g. map(`BusinessUnit`,`XYZ`). | `map(string)` | `{}` | no |
 | vpc\_id | The ID of the VPC that the instance security group belongs to. | `string` | `""` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| security\_group\_ids | IDs on the AWS Security Groups associated with the instance. |
-| tags | A mapping of public tags to assign to the resource. |
+| prefix\_id | n/a |
+| security\_group\_ids | A mapping of security group ids. |
+| tags | A mapping of tags to assign to the resource. |
 
 
 
