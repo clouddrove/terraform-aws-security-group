@@ -42,7 +42,6 @@ locals {
   prefix_list_eg = var.egress_prefix_list_ids
 
 }
-
 ##----------------------------------------------------------------------------------
 ## Here are an example of how you can use this resource in your inventory structure.
 ##----------------------------------------------------------------------------------
@@ -63,7 +62,6 @@ data "aws_security_group" "existing" {
   id     = var.existing_sg_id
   vpc_id = var.vpc_id
 }
-
 ##----------------------------------------------------------------------------------
 ## Provides a security group rule resource. Represents a single egress
 ## group rule, which can be added to external Security Groups.
@@ -91,7 +89,6 @@ resource "aws_security_group_rule" "egress_ipv6" {
   description       = var.security_group_egress_ipv6_rule_description
   prefix_list_ids   = var.prefix_list
 }
-
 ##----------------------------------------------------------------------------------
 ## Provides a security group rule resource. Represents a single ingress
 ## group rule, which can be added to external Security Groups.
@@ -138,8 +135,6 @@ resource "aws_security_group_rule" "ingress_prefix" {
   prefix_list_ids   = [element(element(local.ports_source_prefix_product, count.index), 1)]
   security_group_id = local.id
 }
-
-
 ##----------------------------------------------------------------------------------
 ## egress rules configuration.
 ##----------------------------------------------------------------------------------

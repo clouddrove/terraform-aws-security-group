@@ -16,7 +16,6 @@ module "vpc" {
   label_order = ["name", "environment"]
   cidr_block  = "10.0.0.0/16"
 }
-
 ##----------------------------------------------------------------------------------
 ## Below module will create SECURITY-GROUP and its components.
 ##----------------------------------------------------------------------------------

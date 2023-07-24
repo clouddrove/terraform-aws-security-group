@@ -12,7 +12,6 @@ module "prefix_list" {
   prefix_list_enabled = var.prefix_list_enabled
   entry               = var.entry
 }
-
 ##----------------------------------------------------------------------------------
 ## Below module will create SECURITY-GROUP and its components.
 ##----------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 variable "name" {
   type        = string
   default     = ""
-  description = "Name  (e.g. `app` or `cluster`)."
+  description = "Name  (e.g. `prod-sg`)."
 }
 
 variable "environment" {
@@ -13,7 +13,7 @@ variable "environment" {
 variable "label_order" {
   type        = list(any)
   default     = []
-  description = "Label order, e.g. `name`,`application`."
+  description = "Label order, e.g. `name`,`environment`."
 }
 
 variable "vpc_id" {

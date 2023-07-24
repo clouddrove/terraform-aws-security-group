@@ -34,9 +34,7 @@ module "security_group" {
   allowed_ports             = [22, 27017]
   security_groups           = []
 
-  #-------------------------------------------------------------------------------
   ### prefix_list
-  #-------------------------------------------------------------------------------
   max_entries         = 5
   prefix_list_enabled = true
   prefix_list_id      = []
