@@ -12,8 +12,20 @@ variable "environment" {
 
 variable "label_order" {
   type        = list(any)
-  default     = []
+  default     = ["name", "environment"]
   description = "Label order, e.g. `name`,`application`."
+}
+
+variable "repository" {
+  type        = string
+  default     = "https://github.com/clouddrove/terraform-aws-security-group"
+  description = "Terraform current module repo"
+}
+
+variable "managedby" {
+  type        = string
+  default     = "hello@clouddrove.com"
+  description = "ManagedBy, eg 'CloudDrove'."
 }
 
 variable "vpc_id" {
@@ -23,7 +35,7 @@ variable "vpc_id" {
   sensitive   = true
 }
 
-variable "prefix_list_id" {
+variable "prefix_list_ids" {
   type        = list(string)
   default     = []
   description = "The ID of the prefix list."
@@ -123,4 +135,120 @@ variable "existing_sg_id" {
   type        = string
   default     = null
   description = "Provide existing security group id for updating existing rule"
+}
+
+variable "new_sg_ingress_rules_with_cidr_blocks" {
+  type        = any
+  default     = {}
+  description = "Ingress rules for security group. Should be used when new security group is been deployed."
+}
+
+variable "new_sg_ingress_rules_with_self" {
+  type        = any
+  default     = {}
+  description = "Ingress rules for security group. Should be used when new security group is been deployed."
+}
+
+variable "new_sg_ingress_rules_with_source_sg_id" {
+  type        = any
+  default     = {}
+  description = "Ingress rules for security group. Should be used when new security group is been deployed."
+}
+
+variable "new_sg_ingress_rules_with_prefix_list" {
+  type        = any
+  default     = {}
+  description = "Ingress rules for security group. Should be used when new security group is been deployed."
+}
+
+variable "existing_sg_ingress_rules_with_cidr_blocks" {
+  type        = any
+  default     = {}
+  description = "Ingress rules for security group. Should be used when new security group is been deployed."
+}
+
+variable "existing_sg_ingress_rules_with_self" {
+  type        = any
+  default     = {}
+  description = "Ingress rules for security group. Should be used when new security group is been deployed."
+}
+
+variable "existing_sg_ingress_rules_with_source_sg_id" {
+  type        = any
+  default     = {}
+  description = "Ingress rules for security group. Should be used when new security group is been deployed."
+}
+
+variable "existing_sg_ingress_rules_with_prefix_list" {
+  type        = any
+  default     = {}
+  description = "Ingress rules for security group. Should be used when new security group is been deployed."
+}
+
+variable "new_sg_egress_rules_with_cidr_blocks" {
+  type        = any
+  default     = {}
+  description = "Ingress rules for security group. Should be used when new security group is been deployed."
+}
+
+variable "new_sg_egress_rules_with_self" {
+  type        = any
+  default     = {}
+  description = "Ingress rules for security group. Should be used when new security group is been deployed."
+}
+
+variable "new_sg_egress_rules_with_source_sg_id" {
+  type        = any
+  default     = {}
+  description = "Ingress rules for security group. Should be used when new security group is been deployed."
+}
+
+variable "new_sg_egress_rules_with_prefix_list" {
+  type        = any
+  default     = {}
+  description = "Ingress rules for security group. Should be used when new security group is been deployed."
+}
+
+variable "existing_sg_egress_rules_with_cidr_blocks" {
+  type        = any
+  default     = {}
+  description = "Ingress rules for security group. Should be used when new security group is been deployed."
+}
+
+variable "existing_sg_egress_rules_with_self" {
+  type        = any
+  default     = {}
+  description = "Ingress rules for security group. Should be used when new security group is been deployed."
+}
+
+variable "existing_sg_egress_rules_with_source_sg_id" {
+  type        = any
+  default     = {}
+  description = "Ingress rules for security group. Should be used when new security group is been deployed."
+}
+
+variable "existing_sg_egress_rules_with_prefix_list" {
+  type        = any
+  default     = {}
+  description = "Ingress rules for security group. Should be used when new security group is been deployed."
+}
+
+variable "new_sg" {
+  type    = bool
+  default = true
+}
+
+variable "sg_description" {
+  type    = string
+  default = null
+}
+
+variable "enable" {
+  type    = bool
+  default = true
+}
+
+variable "prefix_list_address_family" {
+  type    = string
+  default = "IPv4"
 }

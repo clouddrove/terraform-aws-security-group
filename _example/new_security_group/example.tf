@@ -10,9 +10,8 @@ provider "aws" {
 ####----------------------------------------------------------------------------------
 
 module "vpc" {
-  source  = "clouddrove/vpc/aws"
-  version = "2.0.0"
-
+  source      = "clouddrove/vpc/aws"
+  version     = "2.0.0"
   name        = "vpc"
   environment = "test"
   label_order = ["name", "environment"]
@@ -25,29 +24,20 @@ module "security_group" {
 
   name        = "security-group"
   environment = "test"
-  label_order = ["name", "environment"]
-
-  ## new_enable_security_group #######
-  vpc_id                    = module.vpc.vpc_id
-  new_enable_security_group = true
-  allowed_ip                = ["172.16.0.0/16", "10.0.0.0/16"]
-  allowed_ports             = [22, 27017]
-  security_groups           = []
-
-  #-------------------------------------------------------------------------------
-  ### prefix_list
-  #-------------------------------------------------------------------------------
-  max_entries         = 5
-  prefix_list_enabled = true
-  prefix_list_id      = []
-  entry = [
-    {
-      cidr        = "10.0.0.0/16"
-      description = "VPC CIDR"
+  vpc_id      = module.vpc.vpc_id
+  # allowed_ip                = ["172.16.0.0/16", "10.0.0.0/16"]
+  # allowed_ports             = [22, 27017]
+  # security_groups           = []
+  new_sg_ingress_rules_with_cidr_blocks = [{
+    from_port   = 22
+    protocol    = "-1"
+    to_port     = 22
+    cidr_blocks = [module.vpc.vpc_cidr_block, "172.16.0.0/16"]
     },
     {
-      cidr        = "10.10.0.0/24"
-      description = "VPC CIDR"
-    }
-  ]
+      from_port   = 27017
+      protocol    = "tcp"
+      to_port     = 27017
+      cidr_blocks = ["172.16.0.0/16"]
+  }]
 }
