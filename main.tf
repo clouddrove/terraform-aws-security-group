@@ -20,7 +20,7 @@ module "labels" {
 ##-----------------------------------------------------------------------------
 resource "aws_security_group" "default" {
   count       = var.enable && var.new_sg ? 1 : 0
-  name        = module.labels.id
+  name        = format("%s-sg", module.labels.id)
   vpc_id      = var.vpc_id
   description = var.sg_description
   tags        = module.labels.tags
@@ -61,20 +61,22 @@ resource "aws_ec2_managed_prefix_list" "prefix_list" {
 ##----------------------------------------------------------------------------- 
 ## Below resource will deploy ingress security group rules for new security group created from this module. 
 ##-----------------------------------------------------------------------------
+# Security group rules with "cidr_blocks", but without "source_security_id" and "self"
 resource "aws_security_group_rule" "new_sg_ingress_with_cidr_blocks" {
-  for_each          = var.enable ? { for rule in var.new_sg_ingress_rules_with_cidr_blocks : rule.from_port => rule } : {}
+  for_each          = var.enable ? { for rule in var.new_sg_ingress_rules_with_cidr_blocks : rule.rule_count => rule } : {}
   type              = "ingress"
   from_port         = each.value.from_port
   protocol          = each.value.protocol
   to_port           = each.value.to_port
-  cidr_blocks       = each.value.cidr_blocks
   security_group_id = aws_security_group.default[0].id
+  cidr_blocks       = lookup(each.value, "cidr_blocks", null)
   ipv6_cidr_blocks  = lookup(each.value, "ipv6_cidr_blocks", null)
   description       = lookup(each.value, "description", null)
 }
 
+# Security group rules with "self", but without "source_security_id" and "cidr_blocks"
 resource "aws_security_group_rule" "new_sg_ingress_with_self" {
-  for_each          = var.enable ? { for rule in var.new_sg_ingress_rules_with_self : rule.from_port => rule } : {}
+  for_each          = var.enable ? { for rule in var.new_sg_ingress_rules_with_self : rule.rule_count => rule } : {}
   type              = "ingress"
   from_port         = each.value.from_port
   protocol          = each.value.protocol
@@ -84,8 +86,9 @@ resource "aws_security_group_rule" "new_sg_ingress_with_self" {
   description       = lookup(each.value, "description", null)
 }
 
+# Security group rules with "source_security_id", but without "cidr_blocks" and "self"
 resource "aws_security_group_rule" "new_sg_ingress_with_source_sg_id" {
-  for_each                 = var.enable ? { for rule in var.new_sg_ingress_rules_with_source_sg_id : rule.from_port => rule } : {}
+  for_each                 = var.enable ? { for rule in var.new_sg_ingress_rules_with_source_sg_id : rule.rule_count => rule } : {}
   type                     = "ingress"
   from_port                = each.value.from_port
   protocol                 = each.value.protocol
@@ -95,22 +98,24 @@ resource "aws_security_group_rule" "new_sg_ingress_with_source_sg_id" {
   description              = lookup(each.value, "description", null)
 }
 
+# Security group rules with "prefix_list_ids", but without "cidr_blocks", "self" or "source_security_group_id"
 resource "aws_security_group_rule" "new_sg_ingress_with_prefix_list" {
-  for_each          = var.enable ? { for rule in var.new_sg_ingress_rules_with_prefix_list : rule.from_port => rule } : {}
+  for_each          = var.enable ? { for rule in var.new_sg_ingress_rules_with_prefix_list : rule.rule_count => rule } : {}
   type              = "ingress"
   from_port         = each.value.from_port
   protocol          = each.value.protocol
   to_port           = each.value.to_port
   security_group_id = aws_security_group.default[0].id
-  prefix_list_ids   = length(var.prefix_list_ids) == 0 ? tolist(aws_ec2_managed_prefix_list.prefix_list[0].id) : var.prefix_list_ids
+  prefix_list_ids   = lookup(each.value, "prefix_list_ids", null) == null ? aws_ec2_managed_prefix_list.prefix_list.*.id : lookup(each.value, "prefix_list_ids", null)
   description       = lookup(each.value, "description", null)
 }
 
 ##----------------------------------------------------------------------------- 
 ## Below resource will deploy ingress security group rules for existing security group.  
 ##-----------------------------------------------------------------------------
+# Security group rules with "cidr_blocks", but without "source_security_id" and "self"
 resource "aws_security_group_rule" "existing_sg_ingress_cidr_blocks" {
-  for_each          = var.enable ? { for rule in var.existing_sg_ingress_rules_with_cidr_blocks : rule.from_port => rule } : {}
+  for_each          = var.enable ? { for rule in var.existing_sg_ingress_rules_with_cidr_blocks : rule.rule_count => rule } : {}
   type              = "ingress"
   from_port         = each.value.from_port
   protocol          = each.value.protocol
@@ -121,8 +126,9 @@ resource "aws_security_group_rule" "existing_sg_ingress_cidr_blocks" {
   description       = lookup(each.value, "description", null)
 }
 
+# Security group rules with "self", but without "source_security_id" and "cidr_blocks"
 resource "aws_security_group_rule" "existing_sg_ingress_with_self" {
-  for_each          = var.enable ? { for rule in var.existing_sg_ingress_rules_with_self : rule.from_port => rule } : {}
+  for_each          = var.enable ? { for rule in var.existing_sg_ingress_rules_with_self : rule.rule_count => rule } : {}
   type              = "ingress"
   from_port         = each.value.from_port
   protocol          = each.value.protocol
@@ -132,8 +138,9 @@ resource "aws_security_group_rule" "existing_sg_ingress_with_self" {
   description       = lookup(each.value, "description", null)
 }
 
+# Security group rules with "source_security_id", but without "cidr_blocks" and "self"
 resource "aws_security_group_rule" "existing_sg_ingress_with_source_sg_id" {
-  for_each                 = var.enable ? { for rule in var.existing_sg_ingress_rules_with_source_sg_id : rule.from_port => rule } : {}
+  for_each                 = var.enable ? { for rule in var.existing_sg_ingress_rules_with_source_sg_id : rule.rule_count => rule } : {}
   type                     = "ingress"
   from_port                = each.value.from_port
   protocol                 = each.value.protocol
@@ -143,22 +150,24 @@ resource "aws_security_group_rule" "existing_sg_ingress_with_source_sg_id" {
   description              = lookup(each.value, "description", null)
 }
 
+# Security group rules with "prefix_list_ids", but without "cidr_blocks", "self" or "source_security_group_id"
 resource "aws_security_group_rule" "existing_sg_ingress_with_prefix_list" {
-  for_each          = var.enable ? { for rule in var.existing_sg_ingress_rules_with_prefix_list : rule.from_port => rule } : {}
+  for_each          = var.enable ? { for rule in var.existing_sg_ingress_rules_with_prefix_list : rule.rule_count => rule } : {}
   type              = "ingress"
   from_port         = each.value.from_port
   protocol          = each.value.protocol
   to_port           = each.value.to_port
   security_group_id = data.aws_security_group.existing[0].id
-  prefix_list_ids   = length(var.prefix_list_ids) == 0 ? tolist(aws_ec2_managed_prefix_list.prefix_list[0].id) : var.prefix_list_ids
+  prefix_list_ids   = lookup(each.value, "prefix_list_ids", null) == null ? aws_ec2_managed_prefix_list.prefix_list.*.id : lookup(each.value, "prefix_list_ids", null)
   description       = lookup(each.value, "description", null)
 }
 
 ##----------------------------------------------------------------------------- 
 ## Below resource will deploy egress security group rules for new security group created from this module. 
 ##-----------------------------------------------------------------------------
+# Security group rules with "cidr_blocks", but without "source_security_id" and "self"
 resource "aws_security_group_rule" "new_sg_egress_with_cidr_blocks" {
-  for_each          = var.enable ? { for rule in var.new_sg_egress_rules_with_cidr_blocks : rule.from_port => rule } : {}
+  for_each          = var.enable ? { for rule in var.new_sg_egress_rules_with_cidr_blocks : rule.rule_count => rule } : {}
   type              = "egress"
   from_port         = each.value.from_port
   protocol          = each.value.protocol
@@ -169,8 +178,9 @@ resource "aws_security_group_rule" "new_sg_egress_with_cidr_blocks" {
   description       = lookup(each.value, "description", null)
 }
 
+# Security group rules with "self", but without "source_security_id" and "cidr_blocks"
 resource "aws_security_group_rule" "new_sg_egress_with_self" {
-  for_each          = var.enable ? { for rule in var.new_sg_egress_rules_with_self : rule.from_port => rule } : {}
+  for_each          = var.enable ? { for rule in var.new_sg_egress_rules_with_self : rule.rule_count => rule } : {}
   type              = "egress"
   from_port         = each.value.from_port
   protocol          = each.value.protocol
@@ -180,8 +190,9 @@ resource "aws_security_group_rule" "new_sg_egress_with_self" {
   description       = lookup(each.value, "description", null)
 }
 
+# Security group rules with "source_security_id", but without "cidr_blocks" and "self"
 resource "aws_security_group_rule" "new_sg_egress_with_source_sg_id" {
-  for_each                 = var.enable ? { for rule in var.new_sg_egress_rules_with_source_sg_id : rule.from_port => rule } : {}
+  for_each                 = var.enable ? { for rule in var.new_sg_egress_rules_with_source_sg_id : rule.rule_count => rule } : {}
   type                     = "egress"
   from_port                = each.value.from_port
   protocol                 = each.value.protocol
@@ -191,22 +202,24 @@ resource "aws_security_group_rule" "new_sg_egress_with_source_sg_id" {
   description              = lookup(each.value, "description", null)
 }
 
+# Security group rules with "prefix_list_ids", but without "cidr_blocks", "self" or "source_security_group_id"
 resource "aws_security_group_rule" "new_sg_egress_with_prefix_list" {
-  for_each          = var.enable ? { for rule in var.new_sg_egress_rules_with_prefix_list : rule.from_port => rule } : {}
+  for_each          = var.enable ? { for rule in var.new_sg_egress_rules_with_prefix_list : rule.rule_count => rule } : {}
   type              = "egress"
   from_port         = each.value.from_port
   protocol          = each.value.protocol
   to_port           = each.value.to_port
   security_group_id = aws_security_group.default[0].id
-  prefix_list_ids   = length(var.prefix_list_ids) == 0 ? tolist(aws_ec2_managed_prefix_list.prefix_list[0].id) : var.prefix_list_ids
+  prefix_list_ids   = lookup(each.value, "prefix_list_ids", null) == null ? aws_ec2_managed_prefix_list.prefix_list.*.id : lookup(each.value, "prefix_list_ids", null)
   description       = lookup(each.value, "description", null)
 }
 
 ##----------------------------------------------------------------------------- 
 ## Below resource will deploy egress security group rules for existing security group.  
 ##-----------------------------------------------------------------------------
+# Security group rules with "cidr_blocks", but without "source_security_id" and "self"
 resource "aws_security_group_rule" "existing_sg_egress_with_cidr_blocks" {
-  for_each          = var.enable ? { for rule in var.existing_sg_egress_rules_with_cidr_blocks : rule.from_port => rule } : {}
+  for_each          = var.enable ? { for rule in var.existing_sg_egress_rules_with_cidr_blocks : rule.rule_count => rule } : {}
   type              = "egress"
   from_port         = each.value.from_port
   protocol          = each.value.protocol
@@ -217,8 +230,9 @@ resource "aws_security_group_rule" "existing_sg_egress_with_cidr_blocks" {
   description       = lookup(each.value, "description", null)
 }
 
+# Security group rules with "self", but without "source_security_id" and "cidr_blocks"
 resource "aws_security_group_rule" "existing_sg_egress_with_self" {
-  for_each          = var.enable ? { for rule in var.existing_sg_egress_rules_with_self : rule.from_port => rule } : {}
+  for_each          = var.enable ? { for rule in var.existing_sg_egress_rules_with_self : rule.rule_count => rule } : {}
   type              = "egress"
   from_port         = each.value.from_port
   protocol          = each.value.protocol
@@ -228,8 +242,9 @@ resource "aws_security_group_rule" "existing_sg_egress_with_self" {
   description       = lookup(each.value, "description", null)
 }
 
+# Security group rules with "source_security_id", but without "cidr_blocks" and "self"
 resource "aws_security_group_rule" "existing_sg_egress_with_source_sg_id" {
-  for_each                 = var.enable ? { for rule in var.existing_sg_egress_rules_with_source_sg_id : rule.from_port => rule } : {}
+  for_each                 = var.enable ? { for rule in var.existing_sg_egress_rules_with_source_sg_id : rule.rule_count => rule } : {}
   type                     = "egress"
   from_port                = each.value.from_port
   protocol                 = each.value.protocol
@@ -239,13 +254,14 @@ resource "aws_security_group_rule" "existing_sg_egress_with_source_sg_id" {
   description              = lookup(each.value, "source_address_prefix", null)
 }
 
+# Security group rules with "prefix_list_ids", but without "cidr_blocks", "self" or "source_security_group_id"
 resource "aws_security_group_rule" "existing_sg_egress_with_prefix_list" {
-  for_each          = var.enable ? { for rule in var.existing_sg_egress_rules_with_prefix_list : rule.from_port => rule } : {}
+  for_each          = var.enable ? { for rule in var.existing_sg_egress_rules_with_prefix_list : rule.rule_count => rule } : {}
   type              = "egress"
   from_port         = each.value.from_port
   protocol          = each.value.protocol
   to_port           = each.value.to_port
   security_group_id = data.aws_security_group.existing[0].id
-  prefix_list_ids   = length(var.prefix_list_ids) == 0 ? tolist(aws_ec2_managed_prefix_list.prefix_list[0].id) : var.prefix_list_ids
+  prefix_list_ids   = lookup(each.value, "prefix_list_ids", null) == null ? aws_ec2_managed_prefix_list.prefix_list.*.id : lookup(each.value, "prefix_list_ids", null)
   description       = lookup(each.value, "source_address_prefix", null)
 }
