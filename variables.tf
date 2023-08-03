@@ -114,15 +114,8 @@ variable "existing_sg_ingress_rules_with_prefix_list" {
 }
 
 variable "new_sg_egress_rules_with_cidr_blocks" {
-  type = any
-  default = [{
-    rule_count  = 1
-    from_port   = 0
-    protocol    = "-1"
-    to_port     = 0
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow all outboud traffic."
-  }]
+  type        = any
+  default     = {}
   description = "Egress rules with only cidr_blockd. Should be used when new security group is been deployed."
 }
 

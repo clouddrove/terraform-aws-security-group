@@ -44,10 +44,10 @@ module "security_group" {
   ## EGRESS Rules
   new_sg_egress_rules_with_prefix_list = [{
     rule_count  = 1
-    from_port   = 0
-    protocol    = "-1"
-    to_port     = 0
-    description = "Allow all outbound traffic."
+    from_port   = 3306
+    protocol    = "tcp"
+    to_port     = 3306
+    description = "Allow mysql/aurora outbound traffic."
     }
   ]
 }
