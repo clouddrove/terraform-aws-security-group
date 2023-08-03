@@ -4,7 +4,7 @@
 
 
 <h1 align="center">
-    Terraform Module Security-Group
+    Terraform AWS Subnet
 </h1>
 
 <p align="center" style="font-size: 1.2rem;"> 
@@ -30,10 +30,10 @@
 <a href='https://facebook.com/sharer/sharer.php?u=https://github.com/clouddrove/terraform-aws-security-group'>
   <img title="Share on Facebook" src="https://user-images.githubusercontent.com/50652676/62817743-4f64cb80-bb59-11e9-90c7-b057252ded50.png" />
 </a>
-<a href='https://www.linkedin.com/shareArticle?mini=true&title=Terraform+Module+Security-Group&url=https://github.com/clouddrove/terraform-aws-security-group'>
+<a href='https://www.linkedin.com/shareArticle?mini=true&title=Terraform+AWS+Subnet&url=https://github.com/clouddrove/terraform-aws-security-group'>
   <img title="Share on LinkedIn" src="https://user-images.githubusercontent.com/50652676/62817742-4e339e80-bb59-11e9-87b9-a1f68cae1049.png" />
 </a>
-<a href='https://twitter.com/intent/tweet/?text=Terraform+Module+Security-Group&url=https://github.com/clouddrove/terraform-aws-security-group'>
+<a href='https://twitter.com/intent/tweet/?text=Terraform+AWS+Subnet&url=https://github.com/clouddrove/terraform-aws-security-group'>
   <img title="Share on Twitter" src="https://user-images.githubusercontent.com/50652676/62817740-4c69db00-bb59-11e9-8a79-3580fbbf6d5c.png" />
 </a>
 
@@ -53,6 +53,8 @@ We have [*fifty plus terraform modules*][terraform_modules]. A few of them are c
 ## Prerequisites
 
 This module has a few dependencies: 
+- [Terraform 1.5.4](https://learn.hashicorp.com/terraform/getting-started/install.html)
+
 
 
 
@@ -66,75 +68,200 @@ This module has a few dependencies:
 
 
 Here are some examples of how you can use this module in your inventory structure:
-### NEW_SECURITY_GROUP
+### Basic
 Here is an example of how you can use this module in your inventory structure:
 ```hcl
 # use this
   module "security_group" {
-    source        = "clouddrove/security-group/aws"
-    version       = "1.3.0"
-    name        = "security-group"
+    source      = "clouddrove/security-group/aws"
+    version     = "2.0.0"
+    name        = "app"
     environment = "test"
-    label_order = ["name", "environment"]
+    vpc_id      = module.vpc.vpc_id
 
-    vpc_id                    = module.vpc.vpc_id
-    new_enable_security_group = true
-    allowed_ip                = ["172.16.0.0/16", "10.0.0.0/16"]
-    allowed_ports             = [22, 27017]
-    security_groups           = []
-    max_entries               = 5
-    prefix_list_enabled       = true
-    prefix_list_id            = []
-    entry = [
-      {
-        cidr        = "10.0.0.0/16"
-        description = "VPC CIDR"
+    ## INGRESS Rules
+    new_sg_ingress_rules_with_cidr_blocks = [{
+      rule_count  = 1
+      from_port   = 22
+      protocol    = "tcp"
+      to_port     = 22
+      cidr_blocks = [module.vpc.vpc_cidr_block, "172.16.0.0/16"]
+      description = "Allow ssh traffic."
       },
       {
-        cidr        = "10.10.0.0/24"
-        description = "VPC CIDR"
+        rule_count  = 2
+        from_port   = 27017
+        protocol    = "tcp"
+        to_port     = 27017
+        cidr_blocks = ["172.16.0.0/16"]
+        description = "Allow Mongodb traffic."
       }
     ]
+
+      ## EGRESS Rules
+    new_sg_egress_rules_with_cidr_blocks = [{
+      rule_count  = 1
+      from_port   = 22
+      protocol    = "tcp"
+      to_port     = 22
+      cidr_blocks = [module.vpc.vpc_cidr_block, "172.16.0.0/16"]
+      description = "Allow ssh outbound traffic."
+      },
+      {
+        rule_count  = 2
+        from_port   = 27017
+        protocol    = "tcp"
+        to_port     = 27017
+        cidr_blocks = ["172.16.0.0/16"]
+        description = "Allow Mongodb outbound traffic."
+      }]
   }
 ```
-### NEW_SECURITY_GROUP_WITH_EGRESS
+
+### ONLY RULES
+  module "security_group_rules" {
+    source        = "clouddrove/security-group/aws"
+    version       = "2.0.0"
+    name           = "app"
+    environment    = "test"
+    vpc_id         = "vpc-xxxxxxxxx"
+    new_sg         = false
+    existing_sg_id = "sg-xxxxxxxxx"
+
+    ## INGRESS Rules
+    existing_sg_ingress_rules_with_cidr_blocks = [{
+      rule_count  = 1
+      from_port   = 22
+      protocol    = "tcp"
+      to_port     = 22
+      cidr_blocks = ["10.9.0.0/16"]
+      description = "Allow ssh traffic."
+      },
+      {
+        rule_count  = 2
+        from_port   = 27017
+        protocol    = "tcp"
+        to_port     = 27017
+        cidr_blocks = ["10.9.0.0/16"]
+        description = "Allow Mongodb traffic."
+      }
+    ]
+
+    existing_sg_ingress_rules_with_self = [{
+      rule_count  = 1
+      from_port   = 22
+      protocol    = "tcp"
+      to_port     = 22
+      description = "Allow ssh traffic."
+      },
+      {
+        rule_count  = 2
+        from_port   = 27017
+        protocol    = "tcp"
+        to_port     = 27017
+        description = "Allow Mongodb traffic."
+      }
+    ]
+
+    existing_sg_ingress_rules_with_source_sg_id = [{
+      rule_count               = 1
+      from_port                = 22
+      protocol                 = "tcp"
+      to_port                  = 22
+      source_security_group_id = "sg-xxxxxxxxx"
+      description              = "Allow ssh traffic."
+      },
+      {
+        rule_count               = 2
+        from_port                = 27017
+        protocol                 = "tcp"
+        to_port                  = 27017
+        source_security_group_id = "sg-xxxxxxxxx"
+        description              = "Allow Mongodb traffic."
+      }]
+
+    ## EGRESS Rules
+    existing_sg_egress_rules_with_cidr_blocks = [{
+      rule_count  = 1
+      from_port   = 22
+      protocol    = "tcp"
+      to_port     = 22
+      cidr_blocks = ["10.9.0.0/16"]
+      description = "Allow ssh outbound traffic."
+      },
+      {
+        rule_count  = 2
+        from_port   = 27017
+        protocol    = "tcp"
+        to_port     = 27017
+        cidr_blocks = ["10.9.0.0/16"]
+        description = "Allow Mongodb outbound traffic."
+    }]
+
+    existing_sg_egress_rules_with_self = [{
+      rule_count  = 1
+      from_port   = 22
+      protocol    = "tcp"
+      to_port     = 22
+      description = "Allow ssh outbound traffic."
+      },
+      {
+        rule_count  = 2
+        from_port   = 27017
+        protocol    = "tcp"
+        to_port     = 27017
+        description = "Allow Mongodb outbound traffic."
+    }]
+
+    existing_sg_egress_rules_with_source_sg_id = [{
+      rule_count               = 1
+      from_port                = 22
+      protocol                 = "tcp"
+      to_port                  = 22
+      source_security_group_id = "sg-xxxxxxxxx"
+      description              = "Allow ssh outbound traffic."
+      },
+      {
+        rule_count               = 2
+        from_port                = 27017
+        protocol                 = "tcp"
+        to_port                  = 27017
+        source_security_group_id = "sg-xxxxxxxxx"
+        description              = "Allow Mongodb outbound traffic."
+      }]
+  }
+```
+
+  ### PREFIX LIST
   module "security_group" {
-    source        = "clouddrove/security-group/aws"
-    version       = "1.3.0"
-    name        = "security-group"
-    environment = "test"
-    label_order = ["name", "environment"]
+    source              = "clouddrove/security-group/aws"
+    version             = "2.0.0"
+    name                = "app"
+    environment         = "test"
+    vpc_id              = module.vpc.vpc_id
+    prefix_list_enabled = true
+    entry = [{
+      cidr = "10.19.0.0/16"
+    }]
 
-    vpc_id                 = module.vpc.vpc_id
-    prefix_list_enabled    = false
-    allowed_ip             = ["172.16.0.0/16", "10.0.0.0/16"]
-    allowed_ipv6           = ["2405:201:5e00:3684:cd17:9397:5734:a167/128"]
-    allowed_ports          = [22, 27017]
-    security_groups        = ["sg-xxxxxxxxx"]
-    prefix_list_id         = ["pl-6da54004"]
-    egress_rule            = true
-    egress_allowed_ip      = ["172.16.0.0/16", "10.0.0.0/16"]
-    egress_allowed_ports   = [22, 27017]
-    egress_protocol        = "tcp"
-    egress_prefix_list_ids = ["pl-xxxxxxxxx"]
-    egress_security_groups = ["sg-xxxxxxxxx"]
-
-  }
-```
-### UPDATED_EXISTING
-module "security_group" {
-    source        = "clouddrove/security-group/aws"
-    version       = "1.3.0"
-    name        = "security-group"
-    environment = "test"
-    label_order = ["name", "environment"]
-
-    is_external     = true
-    existing_sg_id  = "sg-xxxxxxxxxxxx"
-    vpc_id          = module.vpc.vpc_id
-    allowed_ip      = ["172.16.0.0/16", "10.0.0.0/16"]
-    allowed_ports   = [22, 27017]
-    security_groups = ["sg-xxxxxxxxxxxxx"]
+    ## INGRESS Rules
+    new_sg_ingress_rules_with_prefix_list = [{
+      rule_count  = 1
+      from_port   = 22
+      protocol    = "tcp"
+      to_port     = 22
+      description = "Allow ssh traffic."
+      }
+    ]
+    ## EGRESS Rules
+    new_sg_egress_rules_with_prefix_list = [{
+      rule_count  = 1
+      from_port   = 3306
+      protocol    = "tcp"
+      to_port     = 3306
+      description = "Allow mysql/aurora outbound traffic."
+      }
+    ]
   }
 ```
 
@@ -147,35 +274,46 @@ module "security_group" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| allowed\_ip | List of allowed ip. | `list(any)` | `[]` | no |
-| allowed\_ipv6 | List of allowed ipv6. | `list(any)` | <pre>[<br>  "2405:201:5e00:3684:cd17:9397:5734:a167/128"<br>]</pre> | no |
-| allowed\_ports | List of allowed ingress ports | `list(any)` | `[]` | no |
-| egress\_allowed\_ip | List of allowed ip. | `list(any)` | `[]` | no |
-| egress\_allowed\_ports | List of allowed ingress ports | `list(any)` | `[]` | no |
-| egress\_prefix\_list\_ids | List of prefix list IDs (for allowing access to VPC endpoints)Only valid with egress | `list(any)` | `[]` | no |
-| egress\_protocol | The protocol. If not icmp, tcp, udp, or all use the. | `string` | `"tcp"` | no |
-| egress\_rule | Enable to create egress rule | `bool` | `false` | no |
-| egress\_security\_groups | List of Security Group IDs allowed to connect to the instance. | `list(string)` | `[]` | no |
+| enable | Flag to control module creation. | `bool` | `true` | no |
 | entry | Can be specified multiple times for each prefix list entry. | `list(any)` | `[]` | no |
 | environment | Environment (e.g. `prod`, `dev`, `staging`). | `string` | `""` | no |
+| existing\_sg\_egress\_rules\_with\_cidr\_blocks | Ingress rules with only cidr block. Should be used when there is existing security group. | `any` | `{}` | no |
+| existing\_sg\_egress\_rules\_with\_prefix\_list | Egress rules with only prefic ist ids. Should be used when there is existing security group. | `any` | `{}` | no |
+| existing\_sg\_egress\_rules\_with\_self | Egress rules with only self. Should be used when there is existing security group. | `any` | `{}` | no |
+| existing\_sg\_egress\_rules\_with\_source\_sg\_id | Egress rules with only source security group id. Should be used when there is existing security group. | `any` | `{}` | no |
 | existing\_sg\_id | Provide existing security group id for updating existing rule | `string` | `null` | no |
-| is\_external | enable to udated existing security Group | `bool` | `false` | no |
-| label\_order | Label order, e.g. `name`,`application`. | `list(any)` | `[]` | no |
+| existing\_sg\_ingress\_rules\_with\_cidr\_blocks | Ingress rules with only cidr blocks. Should be used when there is existing security group. | `any` | `{}` | no |
+| existing\_sg\_ingress\_rules\_with\_prefix\_list | Ingress rules with only prefix\_list. Should be used when new security group is been deployed. | `any` | `{}` | no |
+| existing\_sg\_ingress\_rules\_with\_self | Ingress rules with only source security group id. Should be used when new security group is been deployed. | `any` | `{}` | no |
+| existing\_sg\_ingress\_rules\_with\_source\_sg\_id | Ingress rules with only prefix list ids. Should be used when there is existing security group. | `any` | `{}` | no |
+| label\_order | Label order, e.g. `name`,`application`. | `list(any)` | <pre>[<br>  "name",<br>  "environment"<br>]</pre> | no |
+| managedby | ManagedBy, eg 'CloudDrove'. | `string` | `"hello@clouddrove.com"` | no |
 | max\_entries | The maximum number of entries that this prefix list can contain. | `number` | `5` | no |
 | name | Name  (e.g. `app` or `cluster`). | `string` | `""` | no |
-| new\_enable\_security\_group | Enable default Security Group with only Egress traffic allowed. | `bool` | `true` | no |
-| prefix\_list\_enabled | Enable prefix\_list. | `bool` | `true` | no |
-| prefix\_list\_id | The ID of the prefix list. | `list(string)` | `[]` | no |
-| security\_groups | List of Security Group IDs allowed to connect to the instance. | `list(string)` | `[]` | no |
+| new\_sg | Flag to control creation of new security group. | `bool` | `true` | no |
+| new\_sg\_egress\_rules\_with\_cidr\_blocks | Egress rules with only cidr\_blockd. Should be used when new security group is been deployed. | `any` | `{}` | no |
+| new\_sg\_egress\_rules\_with\_prefix\_list | Egress rules with only prefix list ids. Should be used when new security group is been deployed. | `any` | `{}` | no |
+| new\_sg\_egress\_rules\_with\_self | Egress rules with only self. Should be used when new security group is been deployed. | `any` | `{}` | no |
+| new\_sg\_egress\_rules\_with\_source\_sg\_id | Egress rules with only source security group id. Should be used when new security group is been deployed. | `any` | `{}` | no |
+| new\_sg\_ingress\_rules\_with\_cidr\_blocks | Ingress rules with only cidr blocks. Should be used when new security group is been deployed. | `any` | `{}` | no |
+| new\_sg\_ingress\_rules\_with\_prefix\_list | Ingress rules with only prefix list ids. Should be used when new security group is been deployed. | `any` | `{}` | no |
+| new\_sg\_ingress\_rules\_with\_self | Ingress rules with only self. Should be used when new security group is been deployed. | `any` | `{}` | no |
+| new\_sg\_ingress\_rules\_with\_source\_sg\_id | Ingress rules with only source security group id. Should be used when new security group is been deployed. | `any` | `{}` | no |
+| prefix\_list\_address\_family | (Required, Forces new resource) The address family (IPv4 or IPv6) of prefix list. | `string` | `"IPv4"` | no |
+| prefix\_list\_enabled | Enable prefix\_list. | `bool` | `false` | no |
+| prefix\_list\_ids | The ID of the prefix list. | `list(string)` | `[]` | no |
+| repository | Terraform current module repo | `string` | `"https://github.com/clouddrove/terraform-aws-security-group"` | no |
+| sg\_description | Security group description. Defaults to Managed by Terraform. Cannot be empty string. NOTE: This field maps to the AWS GroupDescription attribute, for which there is no Update API. If you'd like to classify your security groups in a way that can be updated, use tags. | `string` | `null` | no |
 | vpc\_id | The ID of the VPC that the instance security group belongs to. | `string` | `""` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| prefix\_id | n/a |
-| security\_group\_ids | A mapping of security group ids. |
-| tags | A mapping of tags to assign to the resource. |
+| prefix\_list\_id | The ID of the prefix list. |
+| security\_group\_arn | IDs on the AWS Security Groups associated with the instance. |
+| security\_group\_id | IDs on the AWS Security Groups associated with the instance. |
+| security\_group\_tags | A mapping of public tags to assign to the resource. |
 
 
 
