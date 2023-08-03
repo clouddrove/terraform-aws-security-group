@@ -4,7 +4,7 @@
 
 
 <h1 align="center">
-    Terraform AWS Subnet
+    Terraform AWS Security Group
 </h1>
 
 <p align="center" style="font-size: 1.2rem;"> 
@@ -30,10 +30,10 @@
 <a href='https://facebook.com/sharer/sharer.php?u=https://github.com/clouddrove/terraform-aws-security-group'>
   <img title="Share on Facebook" src="https://user-images.githubusercontent.com/50652676/62817743-4f64cb80-bb59-11e9-90c7-b057252ded50.png" />
 </a>
-<a href='https://www.linkedin.com/shareArticle?mini=true&title=Terraform+AWS+Subnet&url=https://github.com/clouddrove/terraform-aws-security-group'>
+<a href='https://www.linkedin.com/shareArticle?mini=true&title=Terraform+AWS+Security+Group&url=https://github.com/clouddrove/terraform-aws-security-group'>
   <img title="Share on LinkedIn" src="https://user-images.githubusercontent.com/50652676/62817742-4e339e80-bb59-11e9-87b9-a1f68cae1049.png" />
 </a>
-<a href='https://twitter.com/intent/tweet/?text=Terraform+AWS+Subnet&url=https://github.com/clouddrove/terraform-aws-security-group'>
+<a href='https://twitter.com/intent/tweet/?text=Terraform+AWS+Security+Group&url=https://github.com/clouddrove/terraform-aws-security-group'>
   <img title="Share on Twitter" src="https://user-images.githubusercontent.com/50652676/62817740-4c69db00-bb59-11e9-8a79-3580fbbf6d5c.png" />
 </a>
 
@@ -71,7 +71,6 @@ Here are some examples of how you can use this module in your inventory structur
 ### Basic
 Here is an example of how you can use this module in your inventory structure:
 ```hcl
-# use this
   module "security_group" {
     source      = "clouddrove/security-group/aws"
     version     = "2.0.0"
@@ -119,6 +118,7 @@ Here is an example of how you can use this module in your inventory structure:
 ```
 
 ### ONLY RULES
+```hcl
   module "security_group_rules" {
     source        = "clouddrove/security-group/aws"
     version       = "2.0.0"
@@ -233,6 +233,7 @@ Here is an example of how you can use this module in your inventory structure:
 ```
 
   ### PREFIX LIST
+```hcl
   module "security_group" {
     source              = "clouddrove/security-group/aws"
     version             = "2.0.0"
