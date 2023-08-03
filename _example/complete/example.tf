@@ -5,7 +5,6 @@ provider "aws" {
 locals {
   name        = "app"
   environment = "test"
-  label_order = ["name", "environment"]
 }
 
 ##----------------------------------------------------------------------------- 
@@ -16,7 +15,6 @@ module "vpc" {
   version     = "2.0.0"
   name        = local.name
   environment = local.environment
-  label_order = local.label_order
   cidr_block  = "10.0.0.0/16"
 }
 
