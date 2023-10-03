@@ -106,7 +106,7 @@ resource "aws_security_group_rule" "new_sg_ingress_with_prefix_list" {
   protocol          = each.value.protocol
   to_port           = each.value.to_port
   security_group_id = aws_security_group.default[0].id
-  prefix_list_ids   = lookup(each.value, "prefix_list_ids", null) == null ? aws_ec2_managed_prefix_list.prefix_list.*.id : lookup(each.value, "prefix_list_ids", null)
+  prefix_list_ids   = lookup(each.value, "prefix_list_ids", null) == null ? aws_ec2_managed_prefix_list.prefix_list.[*].id : lookup(each.value, "prefix_list_ids", null)
   description       = lookup(each.value, "description", null)
 }
 
@@ -158,7 +158,7 @@ resource "aws_security_group_rule" "existing_sg_ingress_with_prefix_list" {
   protocol          = each.value.protocol
   to_port           = each.value.to_port
   security_group_id = data.aws_security_group.existing[0].id
-  prefix_list_ids   = lookup(each.value, "prefix_list_ids", null) == null ? aws_ec2_managed_prefix_list.prefix_list.*.id : lookup(each.value, "prefix_list_ids", null)
+  prefix_list_ids   = lookup(each.value, "prefix_list_ids", null) == null ? aws_ec2_managed_prefix_list.prefix_list.[*].id : lookup(each.value, "prefix_list_ids", null)
   description       = lookup(each.value, "description", null)
 }
 
@@ -210,7 +210,7 @@ resource "aws_security_group_rule" "new_sg_egress_with_prefix_list" {
   protocol          = each.value.protocol
   to_port           = each.value.to_port
   security_group_id = aws_security_group.default[0].id
-  prefix_list_ids   = lookup(each.value, "prefix_list_ids", null) == null ? aws_ec2_managed_prefix_list.prefix_list.*.id : lookup(each.value, "prefix_list_ids", null)
+  prefix_list_ids   = lookup(each.value, "prefix_list_ids", null) == null ? aws_ec2_managed_prefix_list.prefix_list.[*].id : lookup(each.value, "prefix_list_ids", null)
   description       = lookup(each.value, "description", null)
 }
 
@@ -262,6 +262,6 @@ resource "aws_security_group_rule" "existing_sg_egress_with_prefix_list" {
   protocol          = each.value.protocol
   to_port           = each.value.to_port
   security_group_id = data.aws_security_group.existing[0].id
-  prefix_list_ids   = lookup(each.value, "prefix_list_ids", null) == null ? aws_ec2_managed_prefix_list.prefix_list.*.id : lookup(each.value, "prefix_list_ids", null)
+  prefix_list_ids   = lookup(each.value, "prefix_list_ids", null) == null ? aws_ec2_managed_prefix_list.prefix_list.[*].id : lookup(each.value, "prefix_list_ids", null)
   description       = lookup(each.value, "source_address_prefix", null)
 }
