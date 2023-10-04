@@ -1,23 +1,23 @@
 name: tf-checks
 on:
   push:
-    branches: [ master ]
+    branches: [ 1.0.6 ]
   pull_request:
   workflow_dispatch:
 jobs:
   tf-checks-basic-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.0.6
     with:
       working_directory: './_example/basic/'
   tf-checks-complete-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.0.6
     with:
       working_directory: './_example/complete/'
   tf-checks-only_rules-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.0.6
     with:
       working_directory: './_example/only_rules/'
   tf-checks-prefx_list-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.0.6
     with:
        working_directory: './_example/prefix_list/'
