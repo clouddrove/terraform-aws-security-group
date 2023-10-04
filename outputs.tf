@@ -4,7 +4,7 @@ output "prefix_list_id" {
 }
 
 output "security_group_id" {
-  value       = var.new_sg && var.enable  ? aws_security_group.default[0].id : null
+  value       = var.new_sg && var.enable ? aws_security_group.default[0].id : null
   description = "IDs on the AWS Security Groups associated with the instance."
 }
 
