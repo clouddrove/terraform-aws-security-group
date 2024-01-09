@@ -8,5 +8,5 @@ jobs:
     secrets:
       GITHUB: ${{ secrets.GITHUB }}
     with:
-      tfcheck: 'tf-checks-prefx_list-example / Evaluate Terraform versions (1.5.0, ./_example/prefix_list/)'
+      tfcheck: 'tf-checks-basic-example / Check code format'
 ...
