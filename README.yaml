@@ -26,15 +26,23 @@ badges:
     url: "LICENSE.md"
 
 prerequesties:
-  - name: Terraform 1.5.4
+  - name: Terraform
     url: https://learn.hashicorp.com/terraform/getting-started/install.html
+    version: ">= 1.5.0"
+
+providers:
+  - name: aws
+    url: https://aws.amazon.com/
+    version: ">= 5.1.0"
+
+module_dependencies:
+  - name: Labels Module
+    url: https://github.com/clouddrove/terraform-aws-labels
+    description: Provides resource tagging.
+
 #  description of this project
 description: |-
   This terraform module creates set of Security Group and Security Group Rules resources in various combinations.
-
-# extra content
-include:
-  - "terraform.md"
 
 # How to use this project
 usage: |-

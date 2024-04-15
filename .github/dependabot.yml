@@ -28,7 +28,7 @@ updates:
     open-pull-requests-limit: 3
 
   - package-ecosystem: "terraform" # See documentation for possible values
-    directory: "/_example/basic" # Location of package manifests
+    directory: "/example/basic" # Location of package manifests
     schedule:
       interval: "weekly"
     # Add assignees
@@ -41,7 +41,7 @@ updates:
     open-pull-requests-limit: 3
 
   - package-ecosystem: "terraform" # See documentation for possible values
-    directory: "/_example/complete" # Location of package manifests
+    directory: "/example/complete" # Location of package manifests
     schedule:
       interval: "weekly"
     # Add assignees
@@ -54,7 +54,7 @@ updates:
     open-pull-requests-limit: 3
 
   - package-ecosystem: "terraform" # See documentation for possible values
-    directory: "/_example/only_rules" # Location of package manifests
+    directory: "/example/only_rules" # Location of package manifests
     schedule:
       interval: "weekly"
     # Add assignees
@@ -67,7 +67,7 @@ updates:
     open-pull-requests-limit: 3
 
   - package-ecosystem: "terraform" # See documentation for possible values
-    directory: "/_example/prefix_list" # Location of package manifests
+    directory: "/example/prefix_list" # Location of package manifests
     schedule:
       interval: "weekly"
     # Add assignees
