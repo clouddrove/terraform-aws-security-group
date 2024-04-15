@@ -8,16 +8,16 @@ jobs:
   tf-checks-basic-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.2.4
     with:
-      working_directory: './example/basic/'
+      working_directory: './examples/basic/'
   tf-checks-complete-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.2.4
     with:
-      working_directory: './example/complete/'
+      working_directory: './examples/complete/'
   tf-checks-only_rules-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.2.4
     with:
-      working_directory: './example/only_rules/'
+      working_directory: './examples/only_rules/'
   tf-checks-prefx_list-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.2.4
     with:
-       working_directory: './example/prefix_list/'
+       working_directory: './examples/prefix_list/'
