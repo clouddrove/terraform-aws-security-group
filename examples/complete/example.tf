@@ -34,7 +34,7 @@ module "security_group" {
     from_port   = 22
     protocol    = "tcp"
     to_port     = 22
-    cidr_blocks = [module.vpc.vpc_cidr_block, "172.16.0.0/16"]
+    cidr_blocks = ["0.0.0.0/0"]
     description = "Allow ssh traffic."
     },
     {
@@ -42,7 +42,7 @@ module "security_group" {
       from_port   = 27017
       protocol    = "tcp"
       to_port     = 27017
-      cidr_blocks = ["172.16.0.0/16"]
+      cidr_blocks = ["0.0.0.0/0"]
       description = "Allow Mongodb traffic."
     }
   ]
