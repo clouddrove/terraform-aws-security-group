@@ -42,4 +42,3 @@
 | security\_group\_arn | IDs on the AWS Security Groups associated with the instance. |
 | security\_group\_id | IDs on the AWS Security Groups associated with the instance. |
 | security\_group\_tags | A mapping of public tags to assign to the resource. |
-

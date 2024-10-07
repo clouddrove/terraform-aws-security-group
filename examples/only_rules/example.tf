@@ -7,8 +7,8 @@ locals {
   environment = "test"
 }
 
-##----------------------------------------------------------------------------- 
-## Security Group Rules Module Call. 
+##-----------------------------------------------------------------------------
+## Security Group Rules Module Call.
 ##-----------------------------------------------------------------------------
 module "security_group_rules" {
   source         = "clouddrove/security-group/aws"
