@@ -27,6 +27,7 @@ resource "aws_security_group" "default" {
   lifecycle {
     create_before_destroy = true
   }
+  revoke_rules_on_delete = var.revoke_rules_on_delete
 }
 
 ##----------------------------------------------------------------------------- 
