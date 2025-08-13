@@ -1,9 +1,9 @@
-# Managed By : CloudDrove 
+# Managed By : CloudDrove
 # Copyright @ CloudDrove. All Right Reserved.
 
 
-##----------------------------------------------------------------------------- 
-## Labels module callled that will be used for naming and tags.   
+##-----------------------------------------------------------------------------
+## Labels module callled that will be used for naming and tags.
 ##-----------------------------------------------------------------------------
 module "labels" {
   source      = "clouddrove/labels/aws"
@@ -15,8 +15,8 @@ module "labels" {
   repository  = var.repository
 }
 
-##----------------------------------------------------------------------------- 
-## Below resource will deploy new security group in aws.    
+##-----------------------------------------------------------------------------
+## Below resource will deploy new security group in aws.
 ##-----------------------------------------------------------------------------
 resource "aws_security_group" "default" {
   count       = var.enable && var.new_sg ? 1 : 0
@@ -29,9 +29,9 @@ resource "aws_security_group" "default" {
   }
 }
 
-##----------------------------------------------------------------------------- 
-## Below data resource is to get details of existing security group in your aws environment. 
-## Will be called when you provide existing security group id in 'existing_sg_id' variable. 
+##-----------------------------------------------------------------------------
+## Below data resource is to get details of existing security group in your aws environment.
+## Will be called when you provide existing security group id in 'existing_sg_id' variable.
 ##-----------------------------------------------------------------------------
 data "aws_security_group" "existing" {
   count  = var.enable && var.existing_sg_id != null ? 1 : 0
@@ -39,8 +39,8 @@ data "aws_security_group" "existing" {
   vpc_id = var.vpc_id
 }
 
-##----------------------------------------------------------------------------- 
-## Below resource will deploy prefix list resource in aws.  
+##-----------------------------------------------------------------------------
+## Below resource will deploy prefix list resource in aws.
 ##-----------------------------------------------------------------------------
 resource "aws_ec2_managed_prefix_list" "prefix_list" {
   count          = var.enable && var.prefix_list_enabled && length(var.prefix_list_ids) < 1 ? 1 : 0
@@ -58,8 +58,8 @@ resource "aws_ec2_managed_prefix_list" "prefix_list" {
 }
 
 
-##----------------------------------------------------------------------------- 
-## Below resource will deploy ingress security group rules for new security group created from this module. 
+##-----------------------------------------------------------------------------
+## Below resource will deploy ingress security group rules for new security group created from this module.
 ##-----------------------------------------------------------------------------
 # Security group rules with "cidr_blocks", but without "source_security_id" and "self"
 resource "aws_security_group_rule" "new_sg_ingress_with_cidr_blocks" {
@@ -110,8 +110,8 @@ resource "aws_security_group_rule" "new_sg_ingress_with_prefix_list" {
   description       = lookup(each.value, "description", null)
 }
 
-##----------------------------------------------------------------------------- 
-## Below resource will deploy ingress security group rules for existing security group.  
+##-----------------------------------------------------------------------------
+## Below resource will deploy ingress security group rules for existing security group.
 ##-----------------------------------------------------------------------------
 # Security group rules with "cidr_blocks", but without "source_security_id" and "self"
 resource "aws_security_group_rule" "existing_sg_ingress_cidr_blocks" {
@@ -162,8 +162,8 @@ resource "aws_security_group_rule" "existing_sg_ingress_with_prefix_list" {
   description       = lookup(each.value, "description", null)
 }
 
-##----------------------------------------------------------------------------- 
-## Below resource will deploy egress security group rules for new security group created from this module. 
+##-----------------------------------------------------------------------------
+## Below resource will deploy egress security group rules for new security group created from this module.
 ##-----------------------------------------------------------------------------
 # Security group rules with "cidr_blocks", but without "source_security_id" and "self"
 resource "aws_security_group_rule" "new_sg_egress_with_cidr_blocks" {
@@ -214,8 +214,8 @@ resource "aws_security_group_rule" "new_sg_egress_with_prefix_list" {
   description       = lookup(each.value, "description", null)
 }
 
-##----------------------------------------------------------------------------- 
-## Below resource will deploy egress security group rules for existing security group.  
+##-----------------------------------------------------------------------------
+## Below resource will deploy egress security group rules for existing security group.
 ##-----------------------------------------------------------------------------
 # Security group rules with "cidr_blocks", but without "source_security_id" and "self"
 resource "aws_security_group_rule" "existing_sg_egress_with_cidr_blocks" {
