@@ -9,15 +9,27 @@ jobs:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
     with:
       working_directory: './examples/basic/'
+      provider: aws
+    secrets:
+      BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-complete-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
     with:
       working_directory: './examples/complete/'
+      provider: aws
+    secrets:
+      BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-only_rules-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
     with:
       working_directory: './examples/only_rules/'
+      provider: aws
+    secrets:
+      BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-prefx_list-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
     with:
-       working_directory: './examples/prefix_list/'
+      working_directory: './examples/prefix_list/'
+      provider: aws
+    secrets:
+      BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
