@@ -190,3 +190,9 @@ variable "prefix_list_address_family" {
   default     = "IPv4"
   description = "(Required, Forces new resource) The address family (IPv4 or IPv6) of prefix list."
 }
+
+variable "revoke_rules_on_delete" {
+  description = "Instruct Terraform to revoke all of the Security Groups attached ingress and egress rules before deleting the rule itself. Enable for EMR."
+  type        = bool
+  default     = false
+}
