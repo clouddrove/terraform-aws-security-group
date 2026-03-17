@@ -22,6 +22,12 @@ variable "repository" {
   description = "Terraform current module repo"
 }
 
+variable "tags" {
+  type        = map(string)
+  default     = {}
+  description = "Additional tags (e.g. map(`BusinessUnit`,`XYZ`)."
+}
+
 variable "managedby" {
   type        = string
   default     = "hello@clouddrove.com"
