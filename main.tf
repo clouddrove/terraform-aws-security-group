@@ -19,11 +19,12 @@ module "labels" {
 ## Below resource will deploy new security group in aws.
 ##-----------------------------------------------------------------------------
 resource "aws_security_group" "default" {
-  count       = var.enable && var.new_sg ? 1 : 0
-  name        = format("%s-sg", module.labels.id)
-  vpc_id      = var.vpc_id
-  description = var.sg_description
-  tags        = module.labels.tags
+  count                  = var.enable && var.new_sg ? 1 : 0
+  name                   = format("%s-sg", module.labels.id)
+  vpc_id                 = var.vpc_id
+  description            = var.sg_description
+  revoke_rules_on_delete = var.revoke_rules_on_delete
+  tags                   = module.labels.tags
   lifecycle {
     create_before_destroy = true
   }
