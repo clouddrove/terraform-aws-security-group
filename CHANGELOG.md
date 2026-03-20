@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.0.2] - 2026-03-20
+### :sparkles: New Features
+- [`cabb425`](https://github.com/clouddrove/terraform-aws-security-group/commit/cabb42528a30e1f7596acc8f4c38f0b0751b757f) - add wrapper module for multi-instance Terragrunt support *(commit by [@anmolnagpal](https://github.com/anmolnagpal))*
+
+### :construction_worker: Build System
+- [`96c1540`](https://github.com/clouddrove/terraform-aws-security-group/commit/96c154041340db2c72a41204cbc81b68f4f03a21) - update shared-workflow name, replace master by v2 *(PR [#67](https://github.com/clouddrove/terraform-aws-security-group/pull/67) by [@vineetbavniya-cd](https://github.com/vineetbavniya-cd))*
+
+### :wrench: Chores
+- [`6808f96`](https://github.com/clouddrove/terraform-aws-security-group/commit/6808f967d23fb825771ae182a4b9a419db6cae77) - upgrade AWS provider to >= 5.80.0 and Terraform to >= 1.10.0 *(PR [#68](https://github.com/clouddrove/terraform-aws-security-group/pull/68) by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+- [`3c70e80`](https://github.com/clouddrove/terraform-aws-security-group/commit/3c70e8066b92d466a1455ca73665456b2df20fb2) - standardize repo with security policy, pre-commit, release automation, and editor config *(PR [#69](https://github.com/clouddrove/terraform-aws-security-group/pull/69) by [@anmolnagpal](https://github.com/anmolnagpal))*
+
+
 ## [2.0.0] - 2023-07-18
 ### :sparkles: New Features
 - [`1b7e956`](https://github.com/clouddrove/terraform-aws-security-group/commit/1b7e95627779862ef1bee65cbbfd25872a274446) - updated changelog.yml name and file *(commit by [@vibhutigoyal](https://github.com/vibhutigoyal))*
@@ -126,3 +138,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.0.1]: https://github.com/clouddrove/terraform-aws-security-group/compare/0.15.0...1.0.1
 [v1.3.0]: https://github.com/clouddrove/terraform-aws-security-group/compare/1.0.1...1.3.0
 [2.0.0]: https://github.com/clouddrove/terraform-aws-security-group/compare/1.3.0...2.0.0
+[v2.0.2]: https://github.com/clouddrove/terraform-aws-security-group/compare/2.0.1...v2.0.2
