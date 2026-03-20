@@ -12,7 +12,7 @@ jobs:
       enable_plan: 'true'
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
-  
+
   tf-checks-complete-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
@@ -21,7 +21,7 @@ jobs:
       enable_plan: 'true'
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
-  
+
   tf-checks-only_rules-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
@@ -30,7 +30,7 @@ jobs:
       enable_plan: 'true'
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
-  
+
   tf-checks-prefx_list-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
