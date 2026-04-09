@@ -6,6 +6,6 @@ on:
 
 jobs:
   pr-validation:
-    uses: clouddrove/github-shared-workflows/.github/workflows/pr-checks.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/pr-checks.yml@master
     with:
       checkLabels: false
