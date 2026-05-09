@@ -9,3 +9,4 @@ jobs:
     uses: clouddrove/github-shared-workflows/.github/workflows/pr-checks.yml@v2
     with:
       checkLabels: false
+      commitlintConfig: commitlint.config.cjs
