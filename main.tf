@@ -77,9 +77,13 @@ resource "aws_vpc_security_group_ingress_rule" "new_sg_cidr" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "new_sg_source_sg" {
+  # Filter on absence of CIDR/prefix fields (always static config values) rather than
+  # presence of referenced_security_group_id (may be unknown at plan time, causing
+  # Terraform to error with "for_each map includes keys derived from resource attributes
+  # that cannot be determined until apply").
   for_each = var.enable && var.new_sg ? {
     for rule in var.new_sg_ingress_rules : rule.key => rule
-    if rule.referenced_security_group_id != null
+    if rule.cidr_ipv4 == null && rule.cidr_ipv6 == null && rule.prefix_list_id == null
   } : {}
   security_group_id            = local.new_sg_id
   ip_protocol                  = each.value.ip_protocol
@@ -125,7 +129,7 @@ resource "aws_vpc_security_group_egress_rule" "new_sg_cidr" {
 resource "aws_vpc_security_group_egress_rule" "new_sg_source_sg" {
   for_each = var.enable && var.new_sg ? {
     for rule in var.new_sg_egress_rules : rule.key => rule
-    if rule.referenced_security_group_id != null
+    if rule.cidr_ipv4 == null && rule.cidr_ipv6 == null && rule.prefix_list_id == null
   } : {}
   security_group_id            = local.new_sg_id
   ip_protocol                  = each.value.ip_protocol
@@ -171,7 +175,7 @@ resource "aws_vpc_security_group_ingress_rule" "existing_sg_cidr" {
 resource "aws_vpc_security_group_ingress_rule" "existing_sg_source_sg" {
   for_each = var.enable && var.existing_sg_id != null ? {
     for rule in var.existing_sg_ingress_rules : rule.key => rule
-    if rule.referenced_security_group_id != null
+    if rule.cidr_ipv4 == null && rule.cidr_ipv6 == null && rule.prefix_list_id == null
   } : {}
   security_group_id            = local.existing_sg_id
   ip_protocol                  = each.value.ip_protocol
@@ -200,7 +204,7 @@ resource "aws_vpc_security_group_egress_rule" "existing_sg_cidr" {
 resource "aws_vpc_security_group_egress_rule" "existing_sg_source_sg" {
   for_each = var.enable && var.existing_sg_id != null ? {
     for rule in var.existing_sg_egress_rules : rule.key => rule
-    if rule.referenced_security_group_id != null
+    if rule.cidr_ipv4 == null && rule.cidr_ipv6 == null && rule.prefix_list_id == null
   } : {}
   security_group_id            = local.existing_sg_id
   ip_protocol                  = each.value.ip_protocol
