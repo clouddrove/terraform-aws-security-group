@@ -31,7 +31,9 @@
 | prefix\_list\_enabled | Enable prefix\_list. | `bool` | `false` | no |
 | prefix\_list\_ids | The ID of the prefix list. | `list(string)` | `[]` | no |
 | repository | Terraform current module repo | `string` | `"https://github.com/clouddrove/terraform-aws-security-group"` | no |
+| revoke\_rules\_on\_delete | Instruct Terraform to revoke all of the Security Groups attached ingress and egress rules before deleting the rule itself. Enable for EMR. | `bool` | `false` | no |
 | sg\_description | Security group description. Defaults to Managed by Terraform. Cannot be empty string. NOTE: This field maps to the AWS GroupDescription attribute, for which there is no Update API. If you'd like to classify your security groups in a way that can be updated, use tags. | `string` | `null` | no |
+| tags | Additional tags (e.g. map(`BusinessUnit`,`XYZ`). | `map(string)` | `{}` | no |
 | vpc\_id | The ID of the VPC that the instance security group belongs to. | `string` | `""` | no |
 
 ## Outputs
