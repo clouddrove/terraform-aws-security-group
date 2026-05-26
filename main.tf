@@ -1,10 +1,6 @@
 # Managed By : CloudDrove
 # Copyright @ CloudDrove. All Right Reserved.
 
-
-##-----------------------------------------------------------------------------
-## Labels module callled that will be used for naming and tags.
-##-----------------------------------------------------------------------------
 module "labels" {
   source      = "clouddrove/labels/aws"
   version     = "1.3.1"
@@ -17,11 +13,12 @@ module "labels" {
 }
 
 ##-----------------------------------------------------------------------------
-## Below resource will deploy new security group in aws.
+## Security group — inline ingress/egress blocks intentionally omitted.
+## All rules managed via aws_vpc_security_group_*_rule resources below.
 ##-----------------------------------------------------------------------------
 resource "aws_security_group" "default" {
   count                  = var.enable && var.new_sg ? 1 : 0
-  name                   = format("%s-sg", module.labels.id)
+  name_prefix            = format("%s-sg-", module.labels.id)
   vpc_id                 = var.vpc_id
   description            = var.sg_description
   revoke_rules_on_delete = var.revoke_rules_on_delete
@@ -29,21 +26,17 @@ resource "aws_security_group" "default" {
   lifecycle {
     create_before_destroy = true
   }
+  timeouts {
+    delete = "60m"
+  }
 }
 
-##-----------------------------------------------------------------------------
-## Below data resource is to get details of existing security group in your aws environment.
-## Will be called when you provide existing security group id in 'existing_sg_id' variable.
-##-----------------------------------------------------------------------------
 data "aws_security_group" "existing" {
   count  = var.enable && var.existing_sg_id != null ? 1 : 0
   id     = var.existing_sg_id
   vpc_id = var.vpc_id
 }
 
-##-----------------------------------------------------------------------------
-## Below resource will deploy prefix list resource in aws.
-##-----------------------------------------------------------------------------
 resource "aws_ec2_managed_prefix_list" "prefix_list" {
   count          = var.enable && var.prefix_list_enabled && length(var.prefix_list_ids) < 1 ? 1 : 0
   address_family = var.prefix_list_address_family
@@ -54,216 +47,170 @@ resource "aws_ec2_managed_prefix_list" "prefix_list" {
     content {
       cidr        = lookup(entry.value, "cidr", null)
       description = lookup(entry.value, "description", null)
-
     }
   }
 }
 
-
-##-----------------------------------------------------------------------------
-## Below resource will deploy ingress security group rules for new security group created from this module.
-##-----------------------------------------------------------------------------
-# Security group rules with "cidr_blocks", but without "source_security_id" and "self"
-resource "aws_security_group_rule" "new_sg_ingress_with_cidr_blocks" {
-  for_each          = var.enable ? { for rule in var.new_sg_ingress_rules_with_cidr_blocks : rule.rule_count => rule } : {}
-  type              = "ingress"
-  from_port         = each.value.from_port
-  protocol          = each.value.protocol
-  to_port           = each.value.to_port
-  security_group_id = aws_security_group.default[0].id
-  cidr_blocks       = lookup(each.value, "cidr_blocks", null)
-  ipv6_cidr_blocks  = lookup(each.value, "ipv6_cidr_blocks", null)
-  description       = lookup(each.value, "description", null)
-}
-
-# Security group rules with "self", but without "source_security_id" and "cidr_blocks"
-resource "aws_security_group_rule" "new_sg_ingress_with_self" {
-  for_each          = var.enable ? { for rule in var.new_sg_ingress_rules_with_self : rule.rule_count => rule } : {}
-  type              = "ingress"
-  from_port         = each.value.from_port
-  protocol          = each.value.protocol
-  to_port           = each.value.to_port
-  security_group_id = aws_security_group.default[0].id
-  self              = lookup(each.value, "self", true)
-  description       = lookup(each.value, "description", null)
-}
-
-# Security group rules with "source_security_id", but without "cidr_blocks" and "self"
-resource "aws_security_group_rule" "new_sg_ingress_with_source_sg_id" {
-  for_each                 = var.enable ? { for rule in var.new_sg_ingress_rules_with_source_sg_id : rule.rule_count => rule } : {}
-  type                     = "ingress"
-  from_port                = each.value.from_port
-  protocol                 = each.value.protocol
-  to_port                  = each.value.to_port
-  source_security_group_id = each.value.source_security_group_id
-  security_group_id        = aws_security_group.default[0].id
-  description              = lookup(each.value, "description", null)
-}
-
-# Security group rules with "prefix_list_ids", but without "cidr_blocks", "self" or "source_security_group_id"
-resource "aws_security_group_rule" "new_sg_ingress_with_prefix_list" {
-  for_each          = var.enable ? { for rule in var.new_sg_ingress_rules_with_prefix_list : rule.rule_count => rule } : {}
-  type              = "ingress"
-  from_port         = each.value.from_port
-  protocol          = each.value.protocol
-  to_port           = each.value.to_port
-  security_group_id = aws_security_group.default[0].id
-  prefix_list_ids   = lookup(each.value, "prefix_list_ids", null) == null ? aws_ec2_managed_prefix_list.prefix_list[*].id : lookup(each.value, "prefix_list_ids", null)
-  description       = lookup(each.value, "description", null)
+locals {
+  new_sg_id      = var.enable && var.new_sg ? aws_security_group.default[0].id : null
+  existing_sg_id = var.enable && var.existing_sg_id != null ? data.aws_security_group.existing[0].id : null
 }
 
 ##-----------------------------------------------------------------------------
-## Below resource will deploy ingress security group rules for existing security group.
+## Ingress rules — new SG. Uses aws_vpc_security_group_ingress_rule (provider
+## 5.x), replacing the deprecated aws_security_group_rule. One resource per
+## source. key field must be unique and stable across rule list changes.
 ##-----------------------------------------------------------------------------
-# Security group rules with "cidr_blocks", but without "source_security_id" and "self"
-resource "aws_security_group_rule" "existing_sg_ingress_cidr_blocks" {
-  for_each          = var.enable ? { for rule in var.existing_sg_ingress_rules_with_cidr_blocks : rule.rule_count => rule } : {}
-  type              = "ingress"
-  from_port         = each.value.from_port
-  protocol          = each.value.protocol
-  to_port           = each.value.to_port
-  security_group_id = data.aws_security_group.existing[0].id
-  cidr_blocks       = lookup(each.value, "cidr_blocks", null)
-  ipv6_cidr_blocks  = lookup(each.value, "ipv6_cidr_blocks", null)
-  description       = lookup(each.value, "description", null)
+resource "aws_vpc_security_group_ingress_rule" "new_sg_cidr" {
+  for_each = var.enable && var.new_sg ? {
+    for rule in var.new_sg_ingress_rules : rule.key => rule
+    if rule.cidr_ipv4 != null || rule.cidr_ipv6 != null
+  } : {}
+  security_group_id = local.new_sg_id
+  ip_protocol       = each.value.ip_protocol
+  from_port         = each.value.ip_protocol == "-1" ? null : each.value.from_port
+  to_port           = each.value.ip_protocol == "-1" ? null : each.value.to_port
+  cidr_ipv4         = each.value.cidr_ipv4
+  cidr_ipv6         = each.value.cidr_ipv6
+  description       = each.value.description
+  tags              = merge(module.labels.tags, each.value.tags)
 }
 
-# Security group rules with "self", but without "source_security_id" and "cidr_blocks"
-resource "aws_security_group_rule" "existing_sg_ingress_with_self" {
-  for_each          = var.enable ? { for rule in var.existing_sg_ingress_rules_with_self : rule.rule_count => rule } : {}
-  type              = "ingress"
-  from_port         = each.value.from_port
-  protocol          = each.value.protocol
-  to_port           = each.value.to_port
-  security_group_id = data.aws_security_group.existing[0].id
-  self              = lookup(each.value, "self", true)
-  description       = lookup(each.value, "description", null)
+resource "aws_vpc_security_group_ingress_rule" "new_sg_source_sg" {
+  # Filter on absence of CIDR/prefix fields (always static config values) rather than
+  # presence of referenced_security_group_id (may be unknown at plan time, causing
+  # Terraform to error with "for_each map includes keys derived from resource attributes
+  # that cannot be determined until apply").
+  for_each = var.enable && var.new_sg ? {
+    for rule in var.new_sg_ingress_rules : rule.key => rule
+    if rule.cidr_ipv4 == null && rule.cidr_ipv6 == null && rule.prefix_list_id == null
+  } : {}
+  security_group_id            = local.new_sg_id
+  ip_protocol                  = each.value.ip_protocol
+  from_port                    = each.value.ip_protocol == "-1" ? null : each.value.from_port
+  to_port                      = each.value.ip_protocol == "-1" ? null : each.value.to_port
+  referenced_security_group_id = each.value.referenced_security_group_id
+  description                  = each.value.description
+  tags                         = merge(module.labels.tags, each.value.tags)
 }
 
-# Security group rules with "source_security_id", but without "cidr_blocks" and "self"
-resource "aws_security_group_rule" "existing_sg_ingress_with_source_sg_id" {
-  for_each                 = var.enable ? { for rule in var.existing_sg_ingress_rules_with_source_sg_id : rule.rule_count => rule } : {}
-  type                     = "ingress"
-  from_port                = each.value.from_port
-  protocol                 = each.value.protocol
-  to_port                  = each.value.to_port
-  source_security_group_id = each.value.source_security_group_id
-  security_group_id        = data.aws_security_group.existing[0].id
-  description              = lookup(each.value, "description", null)
-}
-
-# Security group rules with "prefix_list_ids", but without "cidr_blocks", "self" or "source_security_group_id"
-resource "aws_security_group_rule" "existing_sg_ingress_with_prefix_list" {
-  for_each          = var.enable ? { for rule in var.existing_sg_ingress_rules_with_prefix_list : rule.rule_count => rule } : {}
-  type              = "ingress"
-  from_port         = each.value.from_port
-  protocol          = each.value.protocol
-  to_port           = each.value.to_port
-  security_group_id = data.aws_security_group.existing[0].id
-  prefix_list_ids   = lookup(each.value, "prefix_list_ids", null) == null ? aws_ec2_managed_prefix_list.prefix_list[*].id : lookup(each.value, "prefix_list_ids", null)
-  description       = lookup(each.value, "description", null)
-}
-
-##-----------------------------------------------------------------------------
-## Below resource will deploy egress security group rules for new security group created from this module.
-##-----------------------------------------------------------------------------
-# Security group rules with "cidr_blocks", but without "source_security_id" and "self"
-resource "aws_security_group_rule" "new_sg_egress_with_cidr_blocks" {
-  for_each          = var.enable ? { for rule in var.new_sg_egress_rules_with_cidr_blocks : rule.rule_count => rule } : {}
-  type              = "egress"
-  from_port         = each.value.from_port
-  protocol          = each.value.protocol
-  to_port           = each.value.to_port
-  security_group_id = aws_security_group.default[0].id
-  cidr_blocks       = lookup(each.value, "cidr_blocks", null)
-  ipv6_cidr_blocks  = lookup(each.value, "ipv6_cidr_blocks", null)
-  description       = lookup(each.value, "description", null)
-}
-
-# Security group rules with "self", but without "source_security_id" and "cidr_blocks"
-resource "aws_security_group_rule" "new_sg_egress_with_self" {
-  for_each          = var.enable ? { for rule in var.new_sg_egress_rules_with_self : rule.rule_count => rule } : {}
-  type              = "egress"
-  from_port         = each.value.from_port
-  protocol          = each.value.protocol
-  to_port           = each.value.to_port
-  security_group_id = aws_security_group.default[0].id
-  self              = lookup(each.value, "self", true)
-  description       = lookup(each.value, "description", null)
-}
-
-# Security group rules with "source_security_id", but without "cidr_blocks" and "self"
-resource "aws_security_group_rule" "new_sg_egress_with_source_sg_id" {
-  for_each                 = var.enable ? { for rule in var.new_sg_egress_rules_with_source_sg_id : rule.rule_count => rule } : {}
-  type                     = "egress"
-  from_port                = each.value.from_port
-  protocol                 = each.value.protocol
-  to_port                  = each.value.to_port
-  source_security_group_id = each.value.source_security_group_id
-  security_group_id        = aws_security_group.default[0].id
-  description              = lookup(each.value, "description", null)
-}
-
-# Security group rules with "prefix_list_ids", but without "cidr_blocks", "self" or "source_security_group_id"
-resource "aws_security_group_rule" "new_sg_egress_with_prefix_list" {
-  for_each          = var.enable ? { for rule in var.new_sg_egress_rules_with_prefix_list : rule.rule_count => rule } : {}
-  type              = "egress"
-  from_port         = each.value.from_port
-  protocol          = each.value.protocol
-  to_port           = each.value.to_port
-  security_group_id = aws_security_group.default[0].id
-  prefix_list_ids   = lookup(each.value, "prefix_list_ids", null) == null ? aws_ec2_managed_prefix_list.prefix_list[*].id : lookup(each.value, "prefix_list_ids", null)
-  description       = lookup(each.value, "description", null)
+resource "aws_vpc_security_group_ingress_rule" "new_sg_prefix" {
+  for_each = var.enable && var.new_sg ? {
+    for rule in var.new_sg_ingress_rules : rule.key => rule
+    if rule.prefix_list_id != null
+  } : {}
+  security_group_id = local.new_sg_id
+  ip_protocol       = each.value.ip_protocol
+  from_port         = each.value.ip_protocol == "-1" ? null : each.value.from_port
+  to_port           = each.value.ip_protocol == "-1" ? null : each.value.to_port
+  prefix_list_id    = each.value.prefix_list_id
+  description       = each.value.description
+  tags              = merge(module.labels.tags, each.value.tags)
 }
 
 ##-----------------------------------------------------------------------------
-## Below resource will deploy egress security group rules for existing security group.
+## Egress rules — new SG.
 ##-----------------------------------------------------------------------------
-# Security group rules with "cidr_blocks", but without "source_security_id" and "self"
-resource "aws_security_group_rule" "existing_sg_egress_with_cidr_blocks" {
-  for_each          = var.enable ? { for rule in var.existing_sg_egress_rules_with_cidr_blocks : rule.rule_count => rule } : {}
-  type              = "egress"
-  from_port         = each.value.from_port
-  protocol          = each.value.protocol
-  to_port           = each.value.to_port
-  security_group_id = data.aws_security_group.existing[0].id
-  cidr_blocks       = lookup(each.value, "cidr_blocks", null)
-  ipv6_cidr_blocks  = lookup(each.value, "ipv6_cidr_blocks", null)
-  description       = lookup(each.value, "description", null)
+resource "aws_vpc_security_group_egress_rule" "new_sg_cidr" {
+  for_each = var.enable && var.new_sg ? {
+    for rule in var.new_sg_egress_rules : rule.key => rule
+    if rule.cidr_ipv4 != null || rule.cidr_ipv6 != null
+  } : {}
+  security_group_id = local.new_sg_id
+  ip_protocol       = each.value.ip_protocol
+  from_port         = each.value.ip_protocol == "-1" ? null : each.value.from_port
+  to_port           = each.value.ip_protocol == "-1" ? null : each.value.to_port
+  cidr_ipv4         = each.value.cidr_ipv4
+  cidr_ipv6         = each.value.cidr_ipv6
+  description       = each.value.description
+  tags              = merge(module.labels.tags, each.value.tags)
 }
 
-# Security group rules with "self", but without "source_security_id" and "cidr_blocks"
-resource "aws_security_group_rule" "existing_sg_egress_with_self" {
-  for_each          = var.enable ? { for rule in var.existing_sg_egress_rules_with_self : rule.rule_count => rule } : {}
-  type              = "egress"
-  from_port         = each.value.from_port
-  protocol          = each.value.protocol
-  to_port           = each.value.to_port
-  security_group_id = data.aws_security_group.existing[0].id
-  self              = lookup(each.value, "self", true)
-  description       = lookup(each.value, "description", null)
+resource "aws_vpc_security_group_egress_rule" "new_sg_source_sg" {
+  for_each = var.enable && var.new_sg ? {
+    for rule in var.new_sg_egress_rules : rule.key => rule
+    if rule.cidr_ipv4 == null && rule.cidr_ipv6 == null && rule.prefix_list_id == null
+  } : {}
+  security_group_id            = local.new_sg_id
+  ip_protocol                  = each.value.ip_protocol
+  from_port                    = each.value.ip_protocol == "-1" ? null : each.value.from_port
+  to_port                      = each.value.ip_protocol == "-1" ? null : each.value.to_port
+  referenced_security_group_id = each.value.referenced_security_group_id
+  description                  = each.value.description
+  tags                         = merge(module.labels.tags, each.value.tags)
 }
 
-# Security group rules with "source_security_id", but without "cidr_blocks" and "self"
-resource "aws_security_group_rule" "existing_sg_egress_with_source_sg_id" {
-  for_each                 = var.enable ? { for rule in var.existing_sg_egress_rules_with_source_sg_id : rule.rule_count => rule } : {}
-  type                     = "egress"
-  from_port                = each.value.from_port
-  protocol                 = each.value.protocol
-  to_port                  = each.value.to_port
-  source_security_group_id = each.value.source_security_group_id
-  security_group_id        = data.aws_security_group.existing[0].id
-  description              = lookup(each.value, "source_address_prefix", null)
+resource "aws_vpc_security_group_egress_rule" "new_sg_prefix" {
+  for_each = var.enable && var.new_sg ? {
+    for rule in var.new_sg_egress_rules : rule.key => rule
+    if rule.prefix_list_id != null
+  } : {}
+  security_group_id = local.new_sg_id
+  ip_protocol       = each.value.ip_protocol
+  from_port         = each.value.ip_protocol == "-1" ? null : each.value.from_port
+  to_port           = each.value.ip_protocol == "-1" ? null : each.value.to_port
+  prefix_list_id    = each.value.prefix_list_id
+  description       = each.value.description
+  tags              = merge(module.labels.tags, each.value.tags)
 }
 
-# Security group rules with "prefix_list_ids", but without "cidr_blocks", "self" or "source_security_group_id"
-resource "aws_security_group_rule" "existing_sg_egress_with_prefix_list" {
-  for_each          = var.enable ? { for rule in var.existing_sg_egress_rules_with_prefix_list : rule.rule_count => rule } : {}
-  type              = "egress"
-  from_port         = each.value.from_port
-  protocol          = each.value.protocol
-  to_port           = each.value.to_port
-  security_group_id = data.aws_security_group.existing[0].id
-  prefix_list_ids   = lookup(each.value, "prefix_list_ids", null) == null ? aws_ec2_managed_prefix_list.prefix_list[*].id : lookup(each.value, "prefix_list_ids", null)
-  description       = lookup(each.value, "source_address_prefix", null)
+##-----------------------------------------------------------------------------
+## Ingress/egress rules for an existing security group.
+##-----------------------------------------------------------------------------
+resource "aws_vpc_security_group_ingress_rule" "existing_sg_cidr" {
+  for_each = var.enable && var.existing_sg_id != null ? {
+    for rule in var.existing_sg_ingress_rules : rule.key => rule
+    if rule.cidr_ipv4 != null || rule.cidr_ipv6 != null
+  } : {}
+  security_group_id = local.existing_sg_id
+  ip_protocol       = each.value.ip_protocol
+  from_port         = each.value.ip_protocol == "-1" ? null : each.value.from_port
+  to_port           = each.value.ip_protocol == "-1" ? null : each.value.to_port
+  cidr_ipv4         = each.value.cidr_ipv4
+  cidr_ipv6         = each.value.cidr_ipv6
+  description       = each.value.description
+  tags              = merge(module.labels.tags, each.value.tags)
+}
+
+resource "aws_vpc_security_group_ingress_rule" "existing_sg_source_sg" {
+  for_each = var.enable && var.existing_sg_id != null ? {
+    for rule in var.existing_sg_ingress_rules : rule.key => rule
+    if rule.cidr_ipv4 == null && rule.cidr_ipv6 == null && rule.prefix_list_id == null
+  } : {}
+  security_group_id            = local.existing_sg_id
+  ip_protocol                  = each.value.ip_protocol
+  from_port                    = each.value.ip_protocol == "-1" ? null : each.value.from_port
+  to_port                      = each.value.ip_protocol == "-1" ? null : each.value.to_port
+  referenced_security_group_id = each.value.referenced_security_group_id
+  description                  = each.value.description
+  tags                         = merge(module.labels.tags, each.value.tags)
+}
+
+resource "aws_vpc_security_group_egress_rule" "existing_sg_cidr" {
+  for_each = var.enable && var.existing_sg_id != null ? {
+    for rule in var.existing_sg_egress_rules : rule.key => rule
+    if rule.cidr_ipv4 != null || rule.cidr_ipv6 != null
+  } : {}
+  security_group_id = local.existing_sg_id
+  ip_protocol       = each.value.ip_protocol
+  from_port         = each.value.ip_protocol == "-1" ? null : each.value.from_port
+  to_port           = each.value.ip_protocol == "-1" ? null : each.value.to_port
+  cidr_ipv4         = each.value.cidr_ipv4
+  cidr_ipv6         = each.value.cidr_ipv6
+  description       = each.value.description
+  tags              = merge(module.labels.tags, each.value.tags)
+}
+
+resource "aws_vpc_security_group_egress_rule" "existing_sg_source_sg" {
+  for_each = var.enable && var.existing_sg_id != null ? {
+    for rule in var.existing_sg_egress_rules : rule.key => rule
+    if rule.cidr_ipv4 == null && rule.cidr_ipv6 == null && rule.prefix_list_id == null
+  } : {}
+  security_group_id            = local.existing_sg_id
+  ip_protocol                  = each.value.ip_protocol
+  from_port                    = each.value.ip_protocol == "-1" ? null : each.value.from_port
+  to_port                      = each.value.ip_protocol == "-1" ? null : each.value.to_port
+  referenced_security_group_id = each.value.referenced_security_group_id
+  description                  = each.value.description
+  tags                         = merge(module.labels.tags, each.value.tags)
 }
