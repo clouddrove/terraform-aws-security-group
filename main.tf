@@ -58,8 +58,8 @@ locals {
   new_sg_ingress_cidr_rules = flatten([
     for rule in var.new_sg_ingress_rules : [
       for cidr in concat(
-        [for index, cidr in try(tolist(rule.cidr_ipv4), rule.cidr_ipv4 == null ? [] : [rule.cidr_ipv4]) : { family = "ipv4", index = index, value = cidr }],
-        [for index, cidr in try(tolist(rule.cidr_ipv6), rule.cidr_ipv6 == null ? [] : [rule.cidr_ipv6]) : { family = "ipv6", index = index, value = cidr }]
+        [for index, cidr in try(tolist(coalesce(rule.cidr_ipv4, [])), [rule.cidr_ipv4]) : { family = "ipv4", index = index, value = cidr }],
+        [for index, cidr in try(tolist(coalesce(rule.cidr_ipv6, [])), [rule.cidr_ipv6]) : { family = "ipv6", index = index, value = cidr }]
         ) : merge(rule, {
           cidr_rule_key = format("%s-%s-%s", rule.key, cidr.family, cidr.index)
           cidr_ipv4     = cidr.family == "ipv4" ? cidr.value : null
@@ -71,8 +71,8 @@ locals {
   new_sg_egress_cidr_rules = flatten([
     for rule in var.new_sg_egress_rules : [
       for cidr in concat(
-        [for index, cidr in try(tolist(rule.cidr_ipv4), rule.cidr_ipv4 == null ? [] : [rule.cidr_ipv4]) : { family = "ipv4", index = index, value = cidr }],
-        [for index, cidr in try(tolist(rule.cidr_ipv6), rule.cidr_ipv6 == null ? [] : [rule.cidr_ipv6]) : { family = "ipv6", index = index, value = cidr }]
+        [for index, cidr in try(tolist(coalesce(rule.cidr_ipv4, [])), [rule.cidr_ipv4]) : { family = "ipv4", index = index, value = cidr }],
+        [for index, cidr in try(tolist(coalesce(rule.cidr_ipv6, [])), [rule.cidr_ipv6]) : { family = "ipv6", index = index, value = cidr }]
         ) : merge(rule, {
           cidr_rule_key = format("%s-%s-%s", rule.key, cidr.family, cidr.index)
           cidr_ipv4     = cidr.family == "ipv4" ? cidr.value : null
@@ -84,8 +84,8 @@ locals {
   existing_sg_ingress_cidr_rules = flatten([
     for rule in var.existing_sg_ingress_rules : [
       for cidr in concat(
-        [for index, cidr in try(tolist(rule.cidr_ipv4), rule.cidr_ipv4 == null ? [] : [rule.cidr_ipv4]) : { family = "ipv4", index = index, value = cidr }],
-        [for index, cidr in try(tolist(rule.cidr_ipv6), rule.cidr_ipv6 == null ? [] : [rule.cidr_ipv6]) : { family = "ipv6", index = index, value = cidr }]
+        [for index, cidr in try(tolist(coalesce(rule.cidr_ipv4, [])), [rule.cidr_ipv4]) : { family = "ipv4", index = index, value = cidr }],
+        [for index, cidr in try(tolist(coalesce(rule.cidr_ipv6, [])), [rule.cidr_ipv6]) : { family = "ipv6", index = index, value = cidr }]
         ) : merge(rule, {
           cidr_rule_key = format("%s-%s-%s", rule.key, cidr.family, cidr.index)
           cidr_ipv4     = cidr.family == "ipv4" ? cidr.value : null
@@ -97,8 +97,8 @@ locals {
   existing_sg_egress_cidr_rules = flatten([
     for rule in var.existing_sg_egress_rules : [
       for cidr in concat(
-        [for index, cidr in try(tolist(rule.cidr_ipv4), rule.cidr_ipv4 == null ? [] : [rule.cidr_ipv4]) : { family = "ipv4", index = index, value = cidr }],
-        [for index, cidr in try(tolist(rule.cidr_ipv6), rule.cidr_ipv6 == null ? [] : [rule.cidr_ipv6]) : { family = "ipv6", index = index, value = cidr }]
+        [for index, cidr in try(tolist(coalesce(rule.cidr_ipv4, [])), [rule.cidr_ipv4]) : { family = "ipv4", index = index, value = cidr }],
+        [for index, cidr in try(tolist(coalesce(rule.cidr_ipv6, [])), [rule.cidr_ipv6]) : { family = "ipv6", index = index, value = cidr }]
         ) : merge(rule, {
           cidr_rule_key = format("%s-%s-%s", rule.key, cidr.family, cidr.index)
           cidr_ipv4     = cidr.family == "ipv4" ? cidr.value : null
