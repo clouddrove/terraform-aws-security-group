@@ -74,7 +74,8 @@ variable "existing_sg_id" {
 ##-----------------------------------------------------------------------------
 ## Rule object type used for all ingress/egress rule variables.
 ## Exactly one of cidr_ipv4, cidr_ipv6, prefix_list_id, or
-## referenced_security_group_id must be set per rule.
+## referenced_security_group_id must be set per rule. cidr_ipv4 and cidr_ipv6
+## accept either a single CIDR string or a list of CIDR strings.
 ## key must be unique and stable — it is used as the for_each map key.
 ##-----------------------------------------------------------------------------
 variable "new_sg_ingress_rules" {
@@ -84,8 +85,8 @@ variable "new_sg_ingress_rules" {
     ip_protocol                  = string
     from_port                    = optional(number)
     to_port                      = optional(number)
-    cidr_ipv4                    = optional(string)
-    cidr_ipv6                    = optional(string)
+    cidr_ipv4                    = optional(any)
+    cidr_ipv6                    = optional(any)
     prefix_list_id               = optional(string)
     referenced_security_group_id = optional(string)
     description                  = optional(string, "Managed by Terraform")
@@ -101,8 +102,8 @@ variable "new_sg_egress_rules" {
     ip_protocol                  = string
     from_port                    = optional(number)
     to_port                      = optional(number)
-    cidr_ipv4                    = optional(string)
-    cidr_ipv6                    = optional(string)
+    cidr_ipv4                    = optional(any)
+    cidr_ipv6                    = optional(any)
     prefix_list_id               = optional(string)
     referenced_security_group_id = optional(string)
     description                  = optional(string, "Managed by Terraform")
@@ -125,8 +126,8 @@ variable "existing_sg_ingress_rules" {
     ip_protocol                  = string
     from_port                    = optional(number)
     to_port                      = optional(number)
-    cidr_ipv4                    = optional(string)
-    cidr_ipv6                    = optional(string)
+    cidr_ipv4                    = optional(any)
+    cidr_ipv6                    = optional(any)
     prefix_list_id               = optional(string)
     referenced_security_group_id = optional(string)
     description                  = optional(string, "Managed by Terraform")
@@ -142,8 +143,8 @@ variable "existing_sg_egress_rules" {
     ip_protocol                  = string
     from_port                    = optional(number)
     to_port                      = optional(number)
-    cidr_ipv4                    = optional(string)
-    cidr_ipv6                    = optional(string)
+    cidr_ipv4                    = optional(any)
+    cidr_ipv6                    = optional(any)
     prefix_list_id               = optional(string)
     referenced_security_group_id = optional(string)
     description                  = optional(string, "Managed by Terraform")
