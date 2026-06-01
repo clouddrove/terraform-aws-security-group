@@ -52,8 +52,49 @@ resource "aws_ec2_managed_prefix_list" "prefix_list" {
 }
 
 locals {
-  new_sg_id      = var.enable && var.new_sg ? aws_security_group.default[0].id : null
-  existing_sg_id = var.enable && var.existing_sg_id != null ? data.aws_security_group.existing[0].id : null
+  new_sg_id            = var.enable && var.new_sg ? aws_security_group.default[0].id : null
+  existing_sg_id       = var.enable && var.existing_sg_id != null ? data.aws_security_group.existing[0].id : null
+  legacy_allowed_ports = [for port in var.allowed_ports : tonumber(port) if tostring(port) != ""]
+  legacy_allowed_ip    = distinct(compact(var.allowed_ip))
+  legacy_allowed_ipv6  = distinct(compact(var.allowed_ipv6))
+
+  legacy_ipv4_ingress_rules = flatten([
+    for port in local.legacy_allowed_ports : [
+      for cidr in local.legacy_allowed_ip : {
+        key                          = format("allowed-ipv4-%s-%s", port, cidr)
+        ip_protocol                  = var.protocol
+        from_port                    = port
+        to_port                      = port
+        cidr_ipv4                    = cidr
+        cidr_ipv6                    = null
+        prefix_list_id               = null
+        referenced_security_group_id = null
+        description                  = format("Allow %s traffic from %s.", port, cidr)
+        tags                         = {}
+      }
+    ]
+  ])
+
+  legacy_ipv6_ingress_rules = flatten([
+    for port in local.legacy_allowed_ports : [
+      for cidr in local.legacy_allowed_ipv6 : {
+        key                          = format("allowed-ipv6-%s-%s", port, cidr)
+        ip_protocol                  = var.protocol
+        from_port                    = port
+        to_port                      = port
+        cidr_ipv4                    = null
+        cidr_ipv6                    = cidr
+        prefix_list_id               = null
+        referenced_security_group_id = null
+        description                  = format("Allow %s traffic from %s.", port, cidr)
+        tags                         = {}
+      }
+    ]
+  ])
+
+  legacy_ingress_rules      = concat(local.legacy_ipv4_ingress_rules, local.legacy_ipv6_ingress_rules)
+  new_sg_ingress_rules      = concat(var.new_sg_ingress_rules, local.legacy_ingress_rules)
+  existing_sg_ingress_rules = concat(var.existing_sg_ingress_rules, local.legacy_ingress_rules)
 }
 
 ##-----------------------------------------------------------------------------
@@ -63,7 +104,7 @@ locals {
 ##-----------------------------------------------------------------------------
 resource "aws_vpc_security_group_ingress_rule" "new_sg_cidr" {
   for_each = var.enable && var.new_sg ? {
-    for rule in var.new_sg_ingress_rules : rule.key => rule
+    for rule in local.new_sg_ingress_rules : rule.key => rule
     if rule.cidr_ipv4 != null || rule.cidr_ipv6 != null
   } : {}
   security_group_id = local.new_sg_id
@@ -82,7 +123,7 @@ resource "aws_vpc_security_group_ingress_rule" "new_sg_source_sg" {
   # Terraform to error with "for_each map includes keys derived from resource attributes
   # that cannot be determined until apply").
   for_each = var.enable && var.new_sg ? {
-    for rule in var.new_sg_ingress_rules : rule.key => rule
+    for rule in local.new_sg_ingress_rules : rule.key => rule
     if rule.cidr_ipv4 == null && rule.cidr_ipv6 == null && rule.prefix_list_id == null
   } : {}
   security_group_id            = local.new_sg_id
@@ -96,7 +137,7 @@ resource "aws_vpc_security_group_ingress_rule" "new_sg_source_sg" {
 
 resource "aws_vpc_security_group_ingress_rule" "new_sg_prefix" {
   for_each = var.enable && var.new_sg ? {
-    for rule in var.new_sg_ingress_rules : rule.key => rule
+    for rule in local.new_sg_ingress_rules : rule.key => rule
     if rule.prefix_list_id != null
   } : {}
   security_group_id = local.new_sg_id
@@ -159,7 +200,7 @@ resource "aws_vpc_security_group_egress_rule" "new_sg_prefix" {
 ##-----------------------------------------------------------------------------
 resource "aws_vpc_security_group_ingress_rule" "existing_sg_cidr" {
   for_each = var.enable && var.existing_sg_id != null ? {
-    for rule in var.existing_sg_ingress_rules : rule.key => rule
+    for rule in local.existing_sg_ingress_rules : rule.key => rule
     if rule.cidr_ipv4 != null || rule.cidr_ipv6 != null
   } : {}
   security_group_id = local.existing_sg_id
@@ -174,7 +215,7 @@ resource "aws_vpc_security_group_ingress_rule" "existing_sg_cidr" {
 
 resource "aws_vpc_security_group_ingress_rule" "existing_sg_source_sg" {
   for_each = var.enable && var.existing_sg_id != null ? {
-    for rule in var.existing_sg_ingress_rules : rule.key => rule
+    for rule in local.existing_sg_ingress_rules : rule.key => rule
     if rule.cidr_ipv4 == null && rule.cidr_ipv6 == null && rule.prefix_list_id == null
   } : {}
   security_group_id            = local.existing_sg_id

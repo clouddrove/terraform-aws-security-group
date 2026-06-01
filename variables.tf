@@ -71,6 +71,30 @@ variable "existing_sg_id" {
   description = "ID of a pre-existing security group to add rules to."
 }
 
+variable "allowed_ports" {
+  type        = list(any)
+  default     = []
+  description = "List of ingress ports to allow from allowed_ip and allowed_ipv6."
+}
+
+variable "allowed_ip" {
+  type        = list(string)
+  default     = []
+  description = "List of IPv4 CIDR blocks allowed to access allowed_ports."
+}
+
+variable "allowed_ipv6" {
+  type        = list(string)
+  default     = []
+  description = "List of IPv6 CIDR blocks allowed to access allowed_ports."
+}
+
+variable "protocol" {
+  type        = string
+  default     = "tcp"
+  description = "Ingress protocol used with allowed_ports, allowed_ip, and allowed_ipv6."
+}
+
 ##-----------------------------------------------------------------------------
 ## Rule object type used for all ingress/egress rule variables.
 ## Exactly one of cidr_ipv4, cidr_ipv6, prefix_list_id, or
