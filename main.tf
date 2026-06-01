@@ -54,6 +54,58 @@ resource "aws_ec2_managed_prefix_list" "prefix_list" {
 locals {
   new_sg_id      = var.enable && var.new_sg ? aws_security_group.default[0].id : null
   existing_sg_id = var.enable && var.existing_sg_id != null ? data.aws_security_group.existing[0].id : null
+
+  new_sg_ingress_cidr_rules = flatten([
+    for rule in var.new_sg_ingress_rules : [
+      for cidr in concat(
+        [for index, cidr in try(tolist(coalesce(rule.cidr_ipv4, [])), [rule.cidr_ipv4]) : { family = "ipv4", index = index, value = cidr }],
+        [for index, cidr in try(tolist(coalesce(rule.cidr_ipv6, [])), [rule.cidr_ipv6]) : { family = "ipv6", index = index, value = cidr }]
+        ) : merge(rule, {
+          cidr_rule_key = format("%s-%s-%s", rule.key, cidr.family, cidr.index)
+          cidr_ipv4     = cidr.family == "ipv4" ? cidr.value : null
+          cidr_ipv6     = cidr.family == "ipv6" ? cidr.value : null
+      })
+    ]
+  ])
+
+  new_sg_egress_cidr_rules = flatten([
+    for rule in var.new_sg_egress_rules : [
+      for cidr in concat(
+        [for index, cidr in try(tolist(coalesce(rule.cidr_ipv4, [])), [rule.cidr_ipv4]) : { family = "ipv4", index = index, value = cidr }],
+        [for index, cidr in try(tolist(coalesce(rule.cidr_ipv6, [])), [rule.cidr_ipv6]) : { family = "ipv6", index = index, value = cidr }]
+        ) : merge(rule, {
+          cidr_rule_key = format("%s-%s-%s", rule.key, cidr.family, cidr.index)
+          cidr_ipv4     = cidr.family == "ipv4" ? cidr.value : null
+          cidr_ipv6     = cidr.family == "ipv6" ? cidr.value : null
+      })
+    ]
+  ])
+
+  existing_sg_ingress_cidr_rules = flatten([
+    for rule in var.existing_sg_ingress_rules : [
+      for cidr in concat(
+        [for index, cidr in try(tolist(coalesce(rule.cidr_ipv4, [])), [rule.cidr_ipv4]) : { family = "ipv4", index = index, value = cidr }],
+        [for index, cidr in try(tolist(coalesce(rule.cidr_ipv6, [])), [rule.cidr_ipv6]) : { family = "ipv6", index = index, value = cidr }]
+        ) : merge(rule, {
+          cidr_rule_key = format("%s-%s-%s", rule.key, cidr.family, cidr.index)
+          cidr_ipv4     = cidr.family == "ipv4" ? cidr.value : null
+          cidr_ipv6     = cidr.family == "ipv6" ? cidr.value : null
+      })
+    ]
+  ])
+
+  existing_sg_egress_cidr_rules = flatten([
+    for rule in var.existing_sg_egress_rules : [
+      for cidr in concat(
+        [for index, cidr in try(tolist(coalesce(rule.cidr_ipv4, [])), [rule.cidr_ipv4]) : { family = "ipv4", index = index, value = cidr }],
+        [for index, cidr in try(tolist(coalesce(rule.cidr_ipv6, [])), [rule.cidr_ipv6]) : { family = "ipv6", index = index, value = cidr }]
+        ) : merge(rule, {
+          cidr_rule_key = format("%s-%s-%s", rule.key, cidr.family, cidr.index)
+          cidr_ipv4     = cidr.family == "ipv4" ? cidr.value : null
+          cidr_ipv6     = cidr.family == "ipv6" ? cidr.value : null
+      })
+    ]
+  ])
 }
 
 ##-----------------------------------------------------------------------------
@@ -63,8 +115,7 @@ locals {
 ##-----------------------------------------------------------------------------
 resource "aws_vpc_security_group_ingress_rule" "new_sg_cidr" {
   for_each = var.enable && var.new_sg ? {
-    for rule in var.new_sg_ingress_rules : rule.key => rule
-    if rule.cidr_ipv4 != null || rule.cidr_ipv6 != null
+    for rule in local.new_sg_ingress_cidr_rules : rule.cidr_rule_key => rule
   } : {}
   security_group_id = local.new_sg_id
   ip_protocol       = each.value.ip_protocol
@@ -113,8 +164,7 @@ resource "aws_vpc_security_group_ingress_rule" "new_sg_prefix" {
 ##-----------------------------------------------------------------------------
 resource "aws_vpc_security_group_egress_rule" "new_sg_cidr" {
   for_each = var.enable && var.new_sg ? {
-    for rule in var.new_sg_egress_rules : rule.key => rule
-    if rule.cidr_ipv4 != null || rule.cidr_ipv6 != null
+    for rule in local.new_sg_egress_cidr_rules : rule.cidr_rule_key => rule
   } : {}
   security_group_id = local.new_sg_id
   ip_protocol       = each.value.ip_protocol
@@ -159,8 +209,7 @@ resource "aws_vpc_security_group_egress_rule" "new_sg_prefix" {
 ##-----------------------------------------------------------------------------
 resource "aws_vpc_security_group_ingress_rule" "existing_sg_cidr" {
   for_each = var.enable && var.existing_sg_id != null ? {
-    for rule in var.existing_sg_ingress_rules : rule.key => rule
-    if rule.cidr_ipv4 != null || rule.cidr_ipv6 != null
+    for rule in local.existing_sg_ingress_cidr_rules : rule.cidr_rule_key => rule
   } : {}
   security_group_id = local.existing_sg_id
   ip_protocol       = each.value.ip_protocol
@@ -188,8 +237,7 @@ resource "aws_vpc_security_group_ingress_rule" "existing_sg_source_sg" {
 
 resource "aws_vpc_security_group_egress_rule" "existing_sg_cidr" {
   for_each = var.enable && var.existing_sg_id != null ? {
-    for rule in var.existing_sg_egress_rules : rule.key => rule
-    if rule.cidr_ipv4 != null || rule.cidr_ipv6 != null
+    for rule in local.existing_sg_egress_cidr_rules : rule.cidr_rule_key => rule
   } : {}
   security_group_id = local.existing_sg_id
   ip_protocol       = each.value.ip_protocol
