@@ -12,7 +12,7 @@ locals {
 ##-----------------------------------------------------------------------------
 module "security_group_rules" {
   source  = "clouddrove/security-group/aws"
-  version = "2.0.2"
+  version = "2.0.3"
 
   name        = local.name
   environment = local.environment
