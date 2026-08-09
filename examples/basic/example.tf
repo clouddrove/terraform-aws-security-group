@@ -1,3 +1,13 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+  }
+}
+
+
 provider "aws" {
   region = "eu-west-1"
 }
@@ -22,46 +32,55 @@ module "vpc" {
 ## Security Group Module Call.
 ##-----------------------------------------------------------------------------
 module "security_group" {
-  source      = "clouddrove/security-group/aws"
-  version     = "2.0.2"
+  source      = "../.."
   name        = local.name
   environment = local.environment
   vpc_id      = module.vpc.vpc_id
 
   ## INGRESS Rules
-  new_sg_ingress_rules_with_cidr_blocks = [{
-    rule_count  = 1
+  sg_ingress_rules = [{
+    ip_protocol = "tcp"
     from_port   = 22
-    protocol    = "tcp"
     to_port     = 22
-    cidr_blocks = [module.vpc.vpc_cidr_block, "172.16.0.0/16"]
+    cidr_ipv4   = module.vpc.vpc_cidr_block
     description = "Allow ssh traffic."
     },
     {
-      rule_count  = 2
+      ip_protocol = "tcp"
+      from_port   = 22
+      to_port     = 22
+      cidr_ipv4   = "172.16.0.0/16"
+      description = "Allow ssh traffic."
+    },
+    {
+      ip_protocol = "tcp"
       from_port   = 27017
-      protocol    = "tcp"
       to_port     = 27017
-      cidr_blocks = ["172.16.0.0/16"]
+      cidr_ipv4   = "172.16.0.0/16"
       description = "Allow Mongodb traffic."
     }
   ]
 
   ## EGRESS Rules
-  new_sg_egress_rules_with_cidr_blocks = [{
-    rule_count  = 1
+  sg_egress_rules = [{
+    ip_protocol = "tcp"
     from_port   = 22
-    protocol    = "tcp"
     to_port     = 22
-    cidr_blocks = [module.vpc.vpc_cidr_block, "172.16.0.0/16"]
+    cidr_ipv4   = module.vpc.vpc_cidr_block
     description = "Allow ssh outbound traffic."
     },
     {
-      rule_count  = 2
+      ip_protocol = "tcp"
+      from_port   = 22
+      to_port     = 22
+      cidr_ipv4   = "172.16.0.0/16"
+      description = "Allow ssh outbound traffic."
+    },
+    {
+      ip_protocol = "tcp"
       from_port   = 27017
-      protocol    = "tcp"
       to_port     = 27017
-      cidr_blocks = ["172.16.0.0/16"]
+      cidr_ipv4   = "172.16.0.0/16"
       description = "Allow Mongodb outbound traffic."
   }]
 }

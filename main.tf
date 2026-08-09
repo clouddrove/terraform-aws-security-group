@@ -17,7 +17,7 @@ module "labels" {
 ## All rules managed via aws_vpc_security_group_*_rule resources below.
 ##-----------------------------------------------------------------------------
 resource "aws_security_group" "default" {
-  count                  = var.enable && var.new_sg ? 1 : 0
+  count                  = var.enable && var.sg ? 1 : 0
   name_prefix            = format("%s-sg-", module.labels.id)
   vpc_id                 = var.vpc_id
   description            = var.sg_description
@@ -52,8 +52,13 @@ resource "aws_ec2_managed_prefix_list" "prefix_list" {
 }
 
 locals {
-  new_sg_id      = var.enable && var.new_sg ? aws_security_group.default[0].id : null
+  sg_id          = var.enable && var.sg ? aws_security_group.default[0].id : null
   existing_sg_id = var.enable && var.existing_sg_id != null ? data.aws_security_group.existing[0].id : null
+  managed_prefix_list_id = (
+    var.enable &&
+    var.prefix_list_enabled &&
+    length(aws_ec2_managed_prefix_list.prefix_list) > 0
+  ) ? aws_ec2_managed_prefix_list.prefix_list[0].id : null
 }
 
 ##-----------------------------------------------------------------------------
@@ -61,12 +66,28 @@ locals {
 ## 5.x), replacing the deprecated aws_security_group_rule. One resource per
 ## source. key field must be unique and stable across rule list changes.
 ##-----------------------------------------------------------------------------
-resource "aws_vpc_security_group_ingress_rule" "new_sg_cidr" {
-  for_each = var.enable && var.new_sg ? {
-    for rule in var.new_sg_ingress_rules : rule.key => rule
+
+resource "aws_vpc_security_group_ingress_rule" "sg_cidr" {
+  for_each = var.enable && var.sg ? {
+    for rule in var.sg_ingress_rules :
+    coalesce(
+      try(rule.key, null),
+      join("-", [
+        coalesce(try(rule.ip_protocol, null), "all"),
+        tostring(coalesce(try(rule.from_port, null), 0)),
+        tostring(coalesce(try(rule.to_port, null), 0)),
+        coalesce(
+          try(rule.cidr_ipv4, null),
+          try(rule.cidr_ipv6, null),
+          try(rule.referenced_security_group_id, null),
+          try(rule.prefix_list_id, null),
+          "source"
+        )
+      ])
+    ) => rule
     if rule.cidr_ipv4 != null || rule.cidr_ipv6 != null
   } : {}
-  security_group_id = local.new_sg_id
+  security_group_id = local.sg_id
   ip_protocol       = each.value.ip_protocol
   from_port         = each.value.ip_protocol == "-1" ? null : each.value.from_port
   to_port           = each.value.ip_protocol == "-1" ? null : each.value.to_port
@@ -76,16 +97,34 @@ resource "aws_vpc_security_group_ingress_rule" "new_sg_cidr" {
   tags              = merge(module.labels.tags, each.value.tags)
 }
 
-resource "aws_vpc_security_group_ingress_rule" "new_sg_source_sg" {
+resource "aws_vpc_security_group_ingress_rule" "sg_source_sg" {
   # Filter on absence of CIDR/prefix fields (always static config values) rather than
   # presence of referenced_security_group_id (may be unknown at plan time, causing
   # Terraform to error with "for_each map includes keys derived from resource attributes
   # that cannot be determined until apply").
-  for_each = var.enable && var.new_sg ? {
-    for rule in var.new_sg_ingress_rules : rule.key => rule
-    if rule.cidr_ipv4 == null && rule.cidr_ipv6 == null && rule.prefix_list_id == null
+  for_each = var.enable && var.sg ? {
+    for rule in var.sg_ingress_rules :
+    coalesce(
+      try(rule.key, null),
+      join("-", [
+        coalesce(try(rule.ip_protocol, null), "all"),
+        tostring(coalesce(try(rule.from_port, null), 0)),
+        tostring(coalesce(try(rule.to_port, null), 0)),
+        coalesce(
+          try(rule.cidr_ipv4, null),
+          try(rule.cidr_ipv6, null),
+          try(rule.referenced_security_group_id, null),
+          try(rule.prefix_list_id, null),
+          "source"
+        )
+      ])
+    ) => rule
+    if rule.cidr_ipv4 == null &&
+    rule.cidr_ipv6 == null &&
+    !try(rule.use_managed_prefix_list, false) &&
+    try(rule.prefix_list_id, null) == null
   } : {}
-  security_group_id            = local.new_sg_id
+  security_group_id            = local.sg_id
   ip_protocol                  = each.value.ip_protocol
   from_port                    = each.value.ip_protocol == "-1" ? null : each.value.from_port
   to_port                      = each.value.ip_protocol == "-1" ? null : each.value.to_port
@@ -94,16 +133,27 @@ resource "aws_vpc_security_group_ingress_rule" "new_sg_source_sg" {
   tags                         = merge(module.labels.tags, each.value.tags)
 }
 
-resource "aws_vpc_security_group_ingress_rule" "new_sg_prefix" {
-  for_each = var.enable && var.new_sg ? {
-    for rule in var.new_sg_ingress_rules : rule.key => rule
-    if rule.prefix_list_id != null
+resource "aws_vpc_security_group_ingress_rule" "sg_prefix" {
+  for_each = var.enable && var.sg ? {
+    for rule in var.sg_ingress_rules :
+    coalesce(
+      try(rule.key, null),
+      "${rule.ip_protocol}-${rule.from_port}-${rule.to_port}-${
+        try(rule.use_managed_prefix_list, false)
+        ? "managed-prefix-list"
+        : rule.prefix_list_id
+      }"
+    ) => rule
+    if(
+      try(rule.use_managed_prefix_list, false) ||
+      try(rule.prefix_list_id, null) != null
+    )
   } : {}
-  security_group_id = local.new_sg_id
+  security_group_id = local.sg_id
   ip_protocol       = each.value.ip_protocol
   from_port         = each.value.ip_protocol == "-1" ? null : each.value.from_port
   to_port           = each.value.ip_protocol == "-1" ? null : each.value.to_port
-  prefix_list_id    = each.value.prefix_list_id
+  prefix_list_id    = try(each.value.use_managed_prefix_list, false) ? local.managed_prefix_list_id : each.value.prefix_list_id
   description       = each.value.description
   tags              = merge(module.labels.tags, each.value.tags)
 }
@@ -111,12 +161,27 @@ resource "aws_vpc_security_group_ingress_rule" "new_sg_prefix" {
 ##-----------------------------------------------------------------------------
 ## Egress rules — new SG.
 ##-----------------------------------------------------------------------------
-resource "aws_vpc_security_group_egress_rule" "new_sg_cidr" {
-  for_each = var.enable && var.new_sg ? {
-    for rule in var.new_sg_egress_rules : rule.key => rule
+resource "aws_vpc_security_group_egress_rule" "sg_cidr" {
+  for_each = var.enable && var.sg ? {
+    for rule in var.sg_egress_rules :
+    coalesce(
+      try(rule.key, null),
+      join("-", [
+        coalesce(try(rule.ip_protocol, null), "all"),
+        tostring(coalesce(try(rule.from_port, null), 0)),
+        tostring(coalesce(try(rule.to_port, null), 0)),
+        coalesce(
+          try(rule.cidr_ipv4, null),
+          try(rule.cidr_ipv6, null),
+          try(rule.referenced_security_group_id, null),
+          try(rule.prefix_list_id, null),
+          "source"
+        )
+      ])
+    ) => rule
     if rule.cidr_ipv4 != null || rule.cidr_ipv6 != null
   } : {}
-  security_group_id = local.new_sg_id
+  security_group_id = local.sg_id
   ip_protocol       = each.value.ip_protocol
   from_port         = each.value.ip_protocol == "-1" ? null : each.value.from_port
   to_port           = each.value.ip_protocol == "-1" ? null : each.value.to_port
@@ -126,12 +191,30 @@ resource "aws_vpc_security_group_egress_rule" "new_sg_cidr" {
   tags              = merge(module.labels.tags, each.value.tags)
 }
 
-resource "aws_vpc_security_group_egress_rule" "new_sg_source_sg" {
-  for_each = var.enable && var.new_sg ? {
-    for rule in var.new_sg_egress_rules : rule.key => rule
-    if rule.cidr_ipv4 == null && rule.cidr_ipv6 == null && rule.prefix_list_id == null
+resource "aws_vpc_security_group_egress_rule" "sg_source_sg" {
+  for_each = var.enable && var.sg ? {
+    for rule in var.sg_egress_rules :
+    coalesce(
+      try(rule.key, null),
+      join("-", [
+        coalesce(try(rule.ip_protocol, null), "all"),
+        tostring(coalesce(try(rule.from_port, null), 0)),
+        tostring(coalesce(try(rule.to_port, null), 0)),
+        coalesce(
+          try(rule.cidr_ipv4, null),
+          try(rule.cidr_ipv6, null),
+          try(rule.referenced_security_group_id, null),
+          try(rule.prefix_list_id, null),
+          "source"
+        )
+      ])
+    ) => rule
+    if rule.cidr_ipv4 == null &&
+    rule.cidr_ipv6 == null &&
+    !try(rule.use_managed_prefix_list, false) &&
+    try(rule.prefix_list_id, null) == null
   } : {}
-  security_group_id            = local.new_sg_id
+  security_group_id            = local.sg_id
   ip_protocol                  = each.value.ip_protocol
   from_port                    = each.value.ip_protocol == "-1" ? null : each.value.from_port
   to_port                      = each.value.ip_protocol == "-1" ? null : each.value.to_port
@@ -140,26 +223,52 @@ resource "aws_vpc_security_group_egress_rule" "new_sg_source_sg" {
   tags                         = merge(module.labels.tags, each.value.tags)
 }
 
-resource "aws_vpc_security_group_egress_rule" "new_sg_prefix" {
-  for_each = var.enable && var.new_sg ? {
-    for rule in var.new_sg_egress_rules : rule.key => rule
-    if rule.prefix_list_id != null
+resource "aws_vpc_security_group_egress_rule" "sg_prefix" {
+  for_each = var.enable && var.sg ? {
+    for rule in var.sg_egress_rules :
+    coalesce(
+      try(rule.key, null),
+      "${rule.ip_protocol}-${rule.from_port}-${rule.to_port}-${
+        try(rule.use_managed_prefix_list, false)
+        ? "managed-prefix-list"
+        : rule.prefix_list_id
+      }"
+    ) => rule
+    if(
+      try(rule.use_managed_prefix_list, false) ||
+      try(rule.prefix_list_id, null) != null
+    )
   } : {}
-  security_group_id = local.new_sg_id
+  security_group_id = local.sg_id
   ip_protocol       = each.value.ip_protocol
   from_port         = each.value.ip_protocol == "-1" ? null : each.value.from_port
   to_port           = each.value.ip_protocol == "-1" ? null : each.value.to_port
-  prefix_list_id    = each.value.prefix_list_id
+  prefix_list_id    = try(each.value.use_managed_prefix_list, false) ? local.managed_prefix_list_id : each.value.prefix_list_id
   description       = each.value.description
   tags              = merge(module.labels.tags, each.value.tags)
 }
 
 ##-----------------------------------------------------------------------------
-## Ingress/egress rules for an existing security group.
+## Ingress rules for an existing security group.
 ##-----------------------------------------------------------------------------
 resource "aws_vpc_security_group_ingress_rule" "existing_sg_cidr" {
   for_each = var.enable && var.existing_sg_id != null ? {
-    for rule in var.existing_sg_ingress_rules : rule.key => rule
+    for rule in var.existing_sg_ingress_rules :
+    coalesce(
+      try(rule.key, null),
+      join("-", [
+        coalesce(try(rule.ip_protocol, null), "all"),
+        tostring(coalesce(try(rule.from_port, null), 0)),
+        tostring(coalesce(try(rule.to_port, null), 0)),
+        coalesce(
+          try(rule.cidr_ipv4, null),
+          try(rule.cidr_ipv6, null),
+          try(rule.referenced_security_group_id, null),
+          try(rule.prefix_list_id, null),
+          "source"
+        )
+      ])
+    ) => rule
     if rule.cidr_ipv4 != null || rule.cidr_ipv6 != null
   } : {}
   security_group_id = local.existing_sg_id
@@ -174,7 +283,22 @@ resource "aws_vpc_security_group_ingress_rule" "existing_sg_cidr" {
 
 resource "aws_vpc_security_group_ingress_rule" "existing_sg_source_sg" {
   for_each = var.enable && var.existing_sg_id != null ? {
-    for rule in var.existing_sg_ingress_rules : rule.key => rule
+    for rule in var.existing_sg_ingress_rules :
+    coalesce(
+      try(rule.key, null),
+      join("-", [
+        coalesce(try(rule.ip_protocol, null), "all"),
+        tostring(coalesce(try(rule.from_port, null), 0)),
+        tostring(coalesce(try(rule.to_port, null), 0)),
+        coalesce(
+          try(rule.cidr_ipv4, null),
+          try(rule.cidr_ipv6, null),
+          try(rule.referenced_security_group_id, null),
+          try(rule.prefix_list_id, null),
+          "source"
+        )
+      ])
+    ) => rule
     if rule.cidr_ipv4 == null && rule.cidr_ipv6 == null && rule.prefix_list_id == null
   } : {}
   security_group_id            = local.existing_sg_id
@@ -186,9 +310,29 @@ resource "aws_vpc_security_group_ingress_rule" "existing_sg_source_sg" {
   tags                         = merge(module.labels.tags, each.value.tags)
 }
 
+##-----------------------------------------------------------------------------
+## Egress rules for an existing security group.
+##-----------------------------------------------------------------------------
+
+
 resource "aws_vpc_security_group_egress_rule" "existing_sg_cidr" {
   for_each = var.enable && var.existing_sg_id != null ? {
-    for rule in var.existing_sg_egress_rules : rule.key => rule
+    for rule in var.existing_sg_egress_rules :
+    coalesce(
+      try(rule.key, null),
+      join("-", [
+        coalesce(try(rule.ip_protocol, null), "all"),
+        tostring(coalesce(try(rule.from_port, null), 0)),
+        tostring(coalesce(try(rule.to_port, null), 0)),
+        coalesce(
+          try(rule.cidr_ipv4, null),
+          try(rule.cidr_ipv6, null),
+          try(rule.referenced_security_group_id, null),
+          try(rule.prefix_list_id, null),
+          "source"
+        )
+      ])
+    ) => rule
     if rule.cidr_ipv4 != null || rule.cidr_ipv6 != null
   } : {}
   security_group_id = local.existing_sg_id
@@ -203,7 +347,22 @@ resource "aws_vpc_security_group_egress_rule" "existing_sg_cidr" {
 
 resource "aws_vpc_security_group_egress_rule" "existing_sg_source_sg" {
   for_each = var.enable && var.existing_sg_id != null ? {
-    for rule in var.existing_sg_egress_rules : rule.key => rule
+    for rule in var.existing_sg_egress_rules :
+    coalesce(
+      try(rule.key, null),
+      join("-", [
+        coalesce(try(rule.ip_protocol, null), "all"),
+        tostring(coalesce(try(rule.from_port, null), 0)),
+        tostring(coalesce(try(rule.to_port, null), 0)),
+        coalesce(
+          try(rule.cidr_ipv4, null),
+          try(rule.cidr_ipv6, null),
+          try(rule.referenced_security_group_id, null),
+          try(rule.prefix_list_id, null),
+          "source"
+        )
+      ])
+    ) => rule
     if rule.cidr_ipv4 == null && rule.cidr_ipv6 == null && rule.prefix_list_id == null
   } : {}
   security_group_id            = local.existing_sg_id
