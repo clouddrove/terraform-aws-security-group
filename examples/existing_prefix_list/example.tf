@@ -35,11 +35,12 @@ module "vpc" {
 ##-----------------------------------------------------------------------------
 
 module "security_group" {
-  source      = "../.."
-  name        = local.name
-  environment = local.environment
-  label_order = local.label_order
-  vpc_id      = module.vpc.vpc_id
+  source         = "../.."
+  name           = local.name
+  environment    = local.environment
+  label_order    = local.label_order
+  vpc_id         = module.vpc.vpc_id
+  sg_description = "Security group allowing SSH and MySQL access via an existing managed prefix list"
 
   ## INGRESS Rules
   sg_ingress_rules = [{
