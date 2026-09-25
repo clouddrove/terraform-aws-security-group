@@ -12,8 +12,9 @@ provider "aws" {
 }
 
 locals {
-  name        = "app"
+  name        = "clouddrove"
   environment = "test"
+  label_order = ["environment", "name"]
 }
 
 ##-----------------------------------------------------------------------------
@@ -24,6 +25,7 @@ module "vpc" {
   version     = "2.0.5"
   name        = local.name
   environment = local.environment
+  label_order = local.label_order
   cidr_block  = "10.0.0.0/16"
 }
 
@@ -35,6 +37,7 @@ module "security_group" {
   source              = "../.."
   name                = local.name
   environment         = local.environment
+  label_order         = local.label_order
   vpc_id              = module.vpc.vpc_id
   prefix_list_enabled = true
   entry = [{

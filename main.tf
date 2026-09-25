@@ -55,10 +55,11 @@ locals {
   sg_id          = var.enable && var.sg ? aws_security_group.default[0].id : null
   existing_sg_id = var.enable && var.existing_sg_id != null ? data.aws_security_group.existing[0].id : null
   managed_prefix_list_id = (
-    var.enable &&
-    var.prefix_list_enabled &&
-    length(aws_ec2_managed_prefix_list.prefix_list) > 0
-  ) ? aws_ec2_managed_prefix_list.prefix_list[0].id : null
+    var.enable && var.prefix_list_enabled
+    ) ? coalesce(
+    try(aws_ec2_managed_prefix_list.prefix_list[0].id, null),
+    try(var.prefix_list_ids[0], null)
+  ) : null
 }
 
 ##-----------------------------------------------------------------------------
@@ -299,7 +300,10 @@ resource "aws_vpc_security_group_ingress_rule" "existing_sg_source_sg" {
         )
       ])
     ) => rule
-    if rule.cidr_ipv4 == null && rule.cidr_ipv6 == null && rule.prefix_list_id == null
+    if rule.cidr_ipv4 == null &&
+    rule.cidr_ipv6 == null &&
+    !try(rule.use_managed_prefix_list, false) &&
+    try(rule.prefix_list_id, null) == null
   } : {}
   security_group_id            = local.existing_sg_id
   ip_protocol                  = each.value.ip_protocol
@@ -308,6 +312,31 @@ resource "aws_vpc_security_group_ingress_rule" "existing_sg_source_sg" {
   referenced_security_group_id = each.value.referenced_security_group_id
   description                  = each.value.description
   tags                         = merge(module.labels.tags, each.value.tags)
+}
+
+resource "aws_vpc_security_group_ingress_rule" "existing_sg_prefix" {
+  for_each = var.enable && var.existing_sg_id != null ? {
+    for rule in var.existing_sg_ingress_rules :
+    coalesce(
+      try(rule.key, null),
+      "${rule.ip_protocol}-${rule.from_port}-${rule.to_port}-${
+        try(rule.use_managed_prefix_list, false)
+        ? "managed-prefix-list"
+        : rule.prefix_list_id
+      }"
+    ) => rule
+    if(
+      try(rule.use_managed_prefix_list, false) ||
+      try(rule.prefix_list_id, null) != null
+    )
+  } : {}
+  security_group_id = local.existing_sg_id
+  ip_protocol       = each.value.ip_protocol
+  from_port         = each.value.ip_protocol == "-1" ? null : each.value.from_port
+  to_port           = each.value.ip_protocol == "-1" ? null : each.value.to_port
+  prefix_list_id    = try(each.value.use_managed_prefix_list, false) ? local.managed_prefix_list_id : each.value.prefix_list_id
+  description       = each.value.description
+  tags              = merge(module.labels.tags, each.value.tags)
 }
 
 ##-----------------------------------------------------------------------------
@@ -363,7 +392,10 @@ resource "aws_vpc_security_group_egress_rule" "existing_sg_source_sg" {
         )
       ])
     ) => rule
-    if rule.cidr_ipv4 == null && rule.cidr_ipv6 == null && rule.prefix_list_id == null
+    if rule.cidr_ipv4 == null &&
+    rule.cidr_ipv6 == null &&
+    !try(rule.use_managed_prefix_list, false) &&
+    try(rule.prefix_list_id, null) == null
   } : {}
   security_group_id            = local.existing_sg_id
   ip_protocol                  = each.value.ip_protocol
@@ -372,4 +404,29 @@ resource "aws_vpc_security_group_egress_rule" "existing_sg_source_sg" {
   referenced_security_group_id = each.value.referenced_security_group_id
   description                  = each.value.description
   tags                         = merge(module.labels.tags, each.value.tags)
+}
+
+resource "aws_vpc_security_group_egress_rule" "existing_sg_prefix" {
+  for_each = var.enable && var.existing_sg_id != null ? {
+    for rule in var.existing_sg_egress_rules :
+    coalesce(
+      try(rule.key, null),
+      "${rule.ip_protocol}-${rule.from_port}-${rule.to_port}-${
+        try(rule.use_managed_prefix_list, false)
+        ? "managed-prefix-list"
+        : rule.prefix_list_id
+      }"
+    ) => rule
+    if(
+      try(rule.use_managed_prefix_list, false) ||
+      try(rule.prefix_list_id, null) != null
+    )
+  } : {}
+  security_group_id = local.existing_sg_id
+  ip_protocol       = each.value.ip_protocol
+  from_port         = each.value.ip_protocol == "-1" ? null : each.value.from_port
+  to_port           = each.value.ip_protocol == "-1" ? null : each.value.to_port
+  prefix_list_id    = try(each.value.use_managed_prefix_list, false) ? local.managed_prefix_list_id : each.value.prefix_list_id
+  description       = each.value.description
+  tags              = merge(module.labels.tags, each.value.tags)
 }

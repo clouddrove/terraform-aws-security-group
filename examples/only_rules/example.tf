@@ -12,8 +12,18 @@ provider "aws" {
 }
 
 locals {
-  name        = "app"
+  name        = "clouddrove"
   environment = "test"
+  label_order = ["environment", "name"]
+}
+
+module "vpc" {
+  source      = "clouddrove/vpc/aws"
+  version     = "2.0.5"
+  name        = local.name
+  environment = local.environment
+  label_order = local.label_order
+  cidr_block  = "10.0.0.0/16"
 }
 
 ##-----------------------------------------------------------------------------
@@ -24,9 +34,10 @@ module "security_group_rules" {
 
   name           = local.name
   environment    = local.environment
-  vpc_id         = "vpc-XXXXXXXXXXXXXXXX"
+  label_order    = local.label_order
+  vpc_id         = module.vpc.vpc_id
   sg             = false
-  existing_sg_id = "sg-XXXXXXXXXXXXXXXX"
+  existing_sg_id = "sg-XXXXXXXXXXXXXXX"
 
   ## INGRESS Rules
   existing_sg_ingress_rules = [
