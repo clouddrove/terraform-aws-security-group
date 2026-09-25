@@ -1,0 +1,63 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = "eu-west-1"
+}
+
+locals {
+  name           = "app"
+  environment    = "test"
+  prefix_list_id = "pl-XXXXXXXXXX"
+  label_order    = ["environment", "name"]
+}
+
+##-----------------------------------------------------------------------------
+## VPC Module Call.
+##-----------------------------------------------------------------------------
+module "vpc" {
+  source      = "clouddrove/vpc/aws"
+  version     = "2.0.5"
+  name        = local.name
+  environment = local.environment
+  label_order = local.label_order
+  cidr_block  = "10.0.0.0/16"
+}
+
+##-----------------------------------------------------------------------------
+## Security Group Module Call.
+##-----------------------------------------------------------------------------
+
+module "security_group" {
+  source         = "../.."
+  name           = local.name
+  environment    = local.environment
+  label_order    = local.label_order
+  vpc_id         = module.vpc.vpc_id
+  sg_description = "Security group allowing SSH and MySQL access via an existing managed prefix list"
+
+  ## INGRESS Rules
+  sg_ingress_rules = [{
+    from_port      = 22
+    ip_protocol    = "tcp"
+    to_port        = 22
+    prefix_list_id = local.prefix_list_id
+    description    = "Allow ssh traffic."
+    }
+  ]
+  ## EGRESS Rules
+  sg_egress_rules = [{
+    from_port      = 3306
+    ip_protocol    = "tcp"
+    to_port        = 3306
+    prefix_list_id = local.prefix_list_id
+    description    = "Allow mysql/aurora outbound traffic."
+    }
+  ]
+}
