@@ -9,7 +9,7 @@ on:
       - '*.tf'
 jobs:
   basic:
-    if: github.actor != 'dependabot[bot]'
+    if: github.actor != 'dependabot[bot]' && github.event.pull_request.head.repo.fork != true
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
     with:
       working_directory: './examples/basic/'

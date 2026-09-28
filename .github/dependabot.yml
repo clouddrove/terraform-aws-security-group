@@ -67,7 +67,20 @@ updates:
     open-pull-requests-limit: 3
 
   - package-ecosystem: "terraform" # See documentation for possible values
-    directory: "/examples/prefix_list" # Location of package manifests
+    directory: "/examples/existing_prefix_list" # Location of package manifests
+    schedule:
+      interval: "weekly"
+    # Add assignees
+    assignees:
+      - "clouddrove-ci"
+    # Add reviewer
+    reviewers:
+      - "approvers"
+    # Allow up to 3 open pull requests for pip dependencies
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: "terraform" # See documentation for possible values
+    directory: "/examples/managed_prefix_list" # Location of package manifests
     schedule:
       interval: "weekly"
     # Add assignees

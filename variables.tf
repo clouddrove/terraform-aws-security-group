@@ -47,7 +47,7 @@ variable "enable" {
   description = "Flag to control module creation."
 }
 
-variable "new_sg" {
+variable "sg" {
   type        = bool
   default     = true
   description = "Create a new security group. Set false to manage rules on an existing SG via existing_sg_id."
@@ -77,16 +77,17 @@ variable "existing_sg_id" {
 ## referenced_security_group_id must be set per rule.
 ## key must be unique and stable — it is used as the for_each map key.
 ##-----------------------------------------------------------------------------
-variable "new_sg_ingress_rules" {
+variable "sg_ingress_rules" {
   description = "Ingress rules for the newly created security group."
   type = list(object({
-    key                          = string
+    key                          = optional(string)
     ip_protocol                  = string
     from_port                    = optional(number)
     to_port                      = optional(number)
     cidr_ipv4                    = optional(string)
     cidr_ipv6                    = optional(string)
     prefix_list_id               = optional(string)
+    use_managed_prefix_list      = optional(bool, false)
     referenced_security_group_id = optional(string)
     description                  = optional(string, "Managed by Terraform")
     tags                         = optional(map(string), {})
@@ -94,16 +95,17 @@ variable "new_sg_ingress_rules" {
   default = []
 }
 
-variable "new_sg_egress_rules" {
+variable "sg_egress_rules" {
   description = "Egress rules for the newly created security group. Default allows all IPv4 egress."
   type = list(object({
-    key                          = string
+    key                          = optional(string)
     ip_protocol                  = string
     from_port                    = optional(number)
     to_port                      = optional(number)
     cidr_ipv4                    = optional(string)
     cidr_ipv6                    = optional(string)
     prefix_list_id               = optional(string)
+    use_managed_prefix_list      = optional(bool, false)
     referenced_security_group_id = optional(string)
     description                  = optional(string, "Managed by Terraform")
     tags                         = optional(map(string), {})
@@ -121,13 +123,14 @@ variable "new_sg_egress_rules" {
 variable "existing_sg_ingress_rules" {
   description = "Ingress rules to add to an existing security group (requires existing_sg_id)."
   type = list(object({
-    key                          = string
+    key                          = optional(string)
     ip_protocol                  = string
     from_port                    = optional(number)
     to_port                      = optional(number)
     cidr_ipv4                    = optional(string)
     cidr_ipv6                    = optional(string)
     prefix_list_id               = optional(string)
+    use_managed_prefix_list      = optional(bool, false)
     referenced_security_group_id = optional(string)
     description                  = optional(string, "Managed by Terraform")
     tags                         = optional(map(string), {})
@@ -138,13 +141,14 @@ variable "existing_sg_ingress_rules" {
 variable "existing_sg_egress_rules" {
   description = "Egress rules to add to an existing security group (requires existing_sg_id)."
   type = list(object({
-    key                          = string
+    key                          = optional(string)
     ip_protocol                  = string
     from_port                    = optional(number)
     to_port                      = optional(number)
     cidr_ipv4                    = optional(string)
     cidr_ipv6                    = optional(string)
     prefix_list_id               = optional(string)
+    use_managed_prefix_list      = optional(bool, false)
     referenced_security_group_id = optional(string)
     description                  = optional(string, "Managed by Terraform")
     tags                         = optional(map(string), {})
